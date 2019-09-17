@@ -1,25 +1,47 @@
-
 import pyrealsense2 as rs
 import cv2
 import numpy as np
+from timeit import default_timer as timer
+
 
 pipeline = rs.pipeline()
 config = rs.config()
-config.enable_stream(rs.steam.depth, 640, 480, rs.format.z16, 30)
+config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+#config.enable_stream(rs.stream.pose)
 pipeline.start(config)
+
+align = rs.align(rs.stream.color)
 
 try:
     while 1:
+        start = timer()
+
         frames = pipeline.wait_for_frames()
-        depth_frame = frames.get_depth_frame()
+        aligned_frames = align.process(frames)
+
+        depth_frame = aligned_frames.get_depth_frame()
+        color_frame = aligned_frames.get_depth_frame()
+        pose = frames.get_pose_frame()
 
         depth_image = np.asanyarray(depth_frame.get_data())
+        color_image = np.asanyarray(color_frame.get_data())
 
         depth_color = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.05), cv2.COLORMAP_JET)
 
-        cv2.imshow("Image view", depth_color)
+        color_image = np.expand_dims(color_image, axis = 3)
+
+        end = timer()
+        FPS = 1.0 / (end - start)
+        cv2.imshow("Depth", depth_color)
+
+        #data = pose.get_pose_frame()
+        #print(data.translation)
+
 
         if (cv2.waitKey(1) & 0xFF == ord('q')):
-                    break;
+            cv2.destroyAllWindows()
+            break;
 finally:
     pipeline.stop()
+
