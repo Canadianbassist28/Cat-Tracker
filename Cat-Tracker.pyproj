@@ -22,6 +22,9 @@
     <Compile Include="help.py" />
     <Compile Include="pointCloud.py" />
     <Compile Include="RealSense.py" />
+    <Compile Include="src\Motion\translationTest.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />
