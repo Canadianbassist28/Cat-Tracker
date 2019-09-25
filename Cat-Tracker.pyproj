@@ -23,5 +23,10 @@
     <Compile Include="pointCloud.py" />
     <Compile Include="RealSense.py" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\" />
+    <Folder Include="src\Motion\" />
+    <Folder Include="src\Image\" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
