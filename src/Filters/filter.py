@@ -26,7 +26,7 @@ while True: # keeps going through the image
     """
     Apply color mapping to the depth data                                                               look at which color maping is beter opencv or realsense
     """
-    colorizer = rs.colorizer()
+    colorizer = rs.colorizer(2)                                                                         #can have few color format 0 jet 3 blk/wh 2 wh/blk
     colorized_depth = np.asanyarray(colorizer.colorize(depth_frame).get_data())
 
     cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
@@ -52,13 +52,34 @@ while True: # keeps going through the image
     Spatial filtering
     smoothes the recorded images
     changing smooth_alpha and delta changes how much the filter is applyed to the images
-    """
+    magnitude is num of filter iterations [1-5]
+    smooth alpha The Alpha factor in an exponential moving average with Alpha=1 - no filter . Alpha = 0 - infinite filter from [0.25 -1]
+    Delta establishes threshold used to preserve edges [1-50]
+
+    can apply hole filling 
+
     spatial = rs.spatial_filter()
     spatial.set_option(rs.option.filter_magnitude, 5)
     spatial.set_option(rs.option.filter_smooth_alpha, 1)
     spatial.set_option(rs.option.filter_smooth_delta, 50)
-    filtered_depth = spatial.process(depth_frame)       #applys filter of depth frame
-    colorized_depth = np.asanyarray(colorizer.colorize(filtered_depth).get_data())  #generates colorized imagebased on input depth frames
+    spatial.set_option(rs.option.holes_fill, 3)
+    filtered_depth = spatial.process(depth_frame)                                                           #applys filter of depth frame
+    colorized_depth = np.asanyarray(colorizer.colorize(filtered_depth).get_data())                          #generates colorized imagebased on input depth frames
+    cv2.namedWindow('RealSenseSpatial', cv2.WINDOW_AUTOSIZE)
+    cv2.imshow('RealSenseSpatial', colorized_depth)                                                         #can use cv2.destroy(winname) to close the window and  dealocate 
+    cv2.waitKey(1)
+    """
+
+    """
+    Hole filling 
+    fillies missing data setting 0-2
+    0: fill from left
+    1: farest_from_arounf usese value from neghiboring pixel thats furthest away
+    2: fill
+    """
+    hole_filling = rs.hole_filling_filter()
+    filled_depth = hole_filling.process(depth_frame)
+    colorized_depth = np.asanyarray(colorizer.colorize(filled_depth).get_data())
     cv2.namedWindow('RealSenseSpatial', cv2.WINDOW_AUTOSIZE)
     cv2.imshow('RealSenseSpatial', colorized_depth)                                                         #can use cv2.destroy(winname) to close the window and  dealocate 
     cv2.waitKey(1)
