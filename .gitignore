@@ -1,4 +1,4 @@
-.pyproj
-.vs
+*.pyproj
+*.vs
 Kevpythexamp.MD
 *.bag

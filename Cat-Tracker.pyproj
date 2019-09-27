@@ -22,12 +22,15 @@
     <Compile Include="help.py" />
     <Compile Include="pointCloud.py" />
     <Compile Include="RealSense.py" />
+    <Compile Include="src\Filters\filter.py" />
+    <Compile Include="src\Filters\opencv_viewer.py" />
     <Compile Include="src\Motion\translationTest.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />
+    <Folder Include="src\Filters\" />
     <Folder Include="src\Motion\" />
     <Folder Include="src\Image\" />
   </ItemGroup>
