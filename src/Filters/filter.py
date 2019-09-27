@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 #create the pipeline
 pipeline = rs.pipeline()
 config = rs.config()
-config.enable_device_from_file("sample.bag")
+config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30) 
+#config.enable_device_from_file("stairs.bag")
 
 #starts streaming
 profile = pipeline.start(config)
@@ -26,15 +27,16 @@ while True: # keeps going through the image
     """
     Apply color mapping to the depth data                                                               look at which color maping is beter opencv or realsense
     """
-    colorizer = rs.colorizer(2)                                                                         #can have few color format 0 jet 3 blk/wh 2 wh/blk
+    colorizer = rs.colorizer(0)                                                                         #can have few color format 0 jet 3 blk/wh 2 wh/blk
     colorized_depth = np.asanyarray(colorizer.colorize(depth_frame).get_data())
 
     cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
     cv2.imshow('RealSense', colorized_depth)
     cv2.waitKey(1)
 
+
     """
-    decimation filter 
+    decimation filter filt
     reduces depth scene complexity or downsampaling sampaling signal at a lower rate
     makes the image shown smaller 
     Has an adjustable linear scale factor at filter_magnitude range 2-8 default is 2
@@ -47,6 +49,7 @@ while True: # keeps going through the image
     cv2.imshow('RealSenseDecimation ', colorized_depth)                                                         #can use cv2.destroy(winname) to close the window and  dealocate 
     cv2.waitKey(1)
     """
+
 
     """
     Spatial filtering
@@ -70,19 +73,39 @@ while True: # keeps going through the image
     cv2.waitKey(1)
     """
 
+
     """
     Hole filling 
     fillies missing data setting 0-2
-    0: fill from left
+    0: fill from left use value from left neighboring pixel to fill hole
     1: farest_from_arounf usese value from neghiboring pixel thats furthest away
-    2: fill
-    """
+    2: neares_from_around uses value from pixel closest to sensor
+
     hole_filling = rs.hole_filling_filter()
     filled_depth = hole_filling.process(depth_frame)
     colorized_depth = np.asanyarray(colorizer.colorize(filled_depth).get_data())
     cv2.namedWindow('RealSenseSpatial', cv2.WINDOW_AUTOSIZE)
     cv2.imshow('RealSenseSpatial', colorized_depth)                                                         #can use cv2.destroy(winname) to close the window and  dealocate 
     cv2.waitKey(1)
+    """
+
+
+    """
+    Applying all the filters
+    disparity trasnform allows view in diparity for longer range
+    """
+    
+    decimation = rs.decimation_filter()
+    hole_filling = rs.hole_filling_filter()
+    spatial = rs.spatial_filter()
+    filter_depth = decimation.process(depth_frame)
+    filter_depth = spatial.process(depth_frame)
+    filter_depth = hole_filling.process(depth_frame)
+    colorized_depth = np.asanyarray(colorizer.colorize(filter_depth).get_data()) 
+    cv2.namedWindow('RealSenseSpatial', cv2.WINDOW_AUTOSIZE)
+    cv2.imshow('RealSenseSpatial', colorized_depth)                                                         #can use cv2.destroy(winname) to close the window and  dealocate 
+    cv2.waitKey(1)
+
 
 """
 Stopping the pipeline
