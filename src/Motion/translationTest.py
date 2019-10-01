@@ -8,7 +8,6 @@ cfg = rs.config()
 cfg.enable_device_from_file("src/Motion/sample.bag")
 
 pipeline.start(cfg)
-
 try:
     while 1:
         #start = timer()
@@ -18,9 +17,9 @@ try:
 
          pr = frame.get_profile()
 
-         #if pr.stream_type() == rs.stream.accel and pr.format() == rs.format.motion_xyz32f:
-         #  accelData = frame.as_motion_frame().get_motion_data()
-         #  print(accelData)
+         if pr.stream_type() == rs.stream.accel and pr.format() == rs.format.motion_xyz32f:
+           accelData = frame.as_motion_frame().get_motion_data()
+           print(accelData)
 
          if pr.stream_type() == rs.stream.gyro and pr.format() == rs.format.motion_xyz32f:   
            gyroData = frame.as_motion_frame().get_motion_data()
