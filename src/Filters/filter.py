@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 #create the pipeline
 pipeline = rs.pipeline()
 config = rs.config()
-config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30) 
-#config.enable_device_from_file("stairs.bag")
+#config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30) #reads form sensor
+config.enable_device_from_file("stairs.bag") #reads form a file change the the .bag file name
 
 #starts streaming
 profile = pipeline.start(config)
