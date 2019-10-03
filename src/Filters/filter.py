@@ -7,8 +7,9 @@ import matplotlib.pyplot as plt
 #create the pipeline
 pipeline = rs.pipeline()
 config = rs.config()
-#config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30) #reads form sensor
-config.enable_device_from_file("stairs.bag") #reads form a file change the the .bag file name
+config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 60) #reads form sensor
+config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+#config.enable_device_from_file("sample.bag") #reads form a file change the the .bag file name
 
 #starts streaming
 profile = pipeline.start(config)
@@ -23,15 +24,22 @@ while True: # keeps going through the image
     """
     frameset = pipeline.wait_for_frames()
     depth_frame = frameset.get_depth_frame()
+    color_frame = frameset.get_color_frame()
+    if not depth_frame or not color_frame:
+        continue #to the top of the loop
 
+    color_image = np.asanyarray(color_frame.get_data())
     """
     Apply color mapping to the depth data                                                               look at which color maping is beter opencv or realsense
     """
     colorizer = rs.colorizer(0)                                                                         #can have few color format 0 jet 3 blk/wh 2 wh/blk
     colorized_depth = np.asanyarray(colorizer.colorize(depth_frame).get_data())
 
+    colorized_depth_org = colorized_depth #creates a copy
+
+    #creates the colored image
     cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-    cv2.imshow('RealSense', colorized_depth)
+    cv2.imshow('RealSense', colorized_depth_org)
     cv2.waitKey(1)
 
 
@@ -92,20 +100,24 @@ while True: # keeps going through the image
 
     """
     Applying all the filters
-    disparity trasnform allows view in diparity for longer range
+    disparity trasnform allows view in disparity for longer range
     """
     
     decimation = rs.decimation_filter()
-    hole_filling = rs.hole_filling_filter()
+    #hole_filling = rs.hole_filling_filter()
     spatial = rs.spatial_filter()
     filter_depth = decimation.process(depth_frame)
     filter_depth = spatial.process(depth_frame)
-    filter_depth = hole_filling.process(depth_frame)
-    colorized_depth = np.asanyarray(colorizer.colorize(filter_depth).get_data()) 
+    #filter_depth = hole_filling.process(depth_frame)
+    colorized_depth = np.asanyarray(colorizer.colorize(filter_depth).get_data())
+    
+    #adds two images 
+    images = np.hstack((color_image, colorized_depth ))
     cv2.namedWindow('RealSenseSpatial', cv2.WINDOW_AUTOSIZE)
-    cv2.imshow('RealSenseSpatial', colorized_depth)                                                         #can use cv2.destroy(winname) to close the window and  dealocate 
+    cv2.imshow('RealSenseSpatial', images)                                                         #can use cv2.destroy(winname) to close the window and  dealocate 
     cv2.waitKey(1)
-
+    #other filters to look threshold depth to desparity temporal
+    #temporal disparity
 
 """
 Stopping the pipeline
