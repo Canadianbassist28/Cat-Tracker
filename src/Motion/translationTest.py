@@ -6,7 +6,9 @@ from realsenseMotion import realsenseMotion
 
 pipeline = rs.pipeline()
 cfg = rs.config()
-cfg.enable_device_from_file("src/Motion/sample.bag")
+cfg.enable_stream(rs.stream.accel)
+cfg.enable_stream(rs.stream.gyro)
+#cfg.enable_device_from_file("src/Motion/sample.bag")
 
 pipeline.start(cfg)
 
