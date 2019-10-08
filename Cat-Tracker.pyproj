@@ -38,7 +38,7 @@
     <Folder Include="src\Image\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="src\meetingMinutes.txt" />
+    <Content Include="meetingMinutes.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
