@@ -2,7 +2,9 @@ import pyrealsense2 as rs
 from time import clock as timer
 
 class realsenseMotion(object):
-    """Handles motion data from the realsense camera"""
+    """
+    Handles motion data from the realsense camera
+    """
     def __init__(self):
         _timeNow = timer()
 

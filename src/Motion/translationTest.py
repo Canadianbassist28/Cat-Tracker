@@ -22,15 +22,21 @@ motion = realsenseMotion()
 try:
     while 1:
 
+        start = timer()
         try:
             frames = pipeline.wait_for_frames()
         except:
             break
 
-        start = timer()
+        depth_frame = frames.get_depth_frame()
+        colorizer = rs.colorizer(0) 
+        colorized_depth = np.asanyarray(colorizer.colorize(depth_frame).get_data())
+        cv2.namedWindow('RealSenseSpatial', cv2.WINDOW_AUTOSIZE)
+        cv2.imshow('RealSenseSpatial', colorized_depth)   
+
         motion.get_data(frames)
         yaw.append(motion.angle)
-
+        
         print(1 / (timer() - start))
 
         #if (cv2.waitKey(1) & 0xFF == ord('q')):
