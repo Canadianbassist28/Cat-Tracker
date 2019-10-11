@@ -18,7 +18,14 @@ cfg.enable_device_from_file("sample.bag", False)
 profile = pipeline.start(cfg)
 yaw = []
 
+playback = profile.get_device().as_playback()
+isRecorded = False
+
+if not playback.is_real_time():
+    isRecorded = True
+
 motion = realsenseMotion()
+print("starting stream...")
 try:
     while 1:
 
@@ -28,16 +35,20 @@ try:
         except:
             break
 
-        depth_frame = frames.get_depth_frame()
-        colorizer = rs.colorizer(0) 
-        colorized_depth = np.asanyarray(colorizer.colorize(depth_frame).get_data())
-        cv2.namedWindow('RealSenseSpatial', cv2.WINDOW_AUTOSIZE)
-        cv2.imshow('RealSenseSpatial', colorized_depth)   
+        #depth_frame = frames.get_depth_frame()
+        #colorizer = rs.colorizer(0) 
+        #colorized_depth = np.asanyarray(colorizer.colorize(depth_frame).get_data())
+        #cv2.namedWindow('RealSenseSpatial', cv2.WINDOW_AUTOSIZE)
+        #cv2.imshow('RealSenseSpatial', colorized_depth)   
 
-        motion.get_data(frames)
+        if isRecorded:
+            motion.get_data(frames, playback.get_position())
+            print(playback.get_position())
+        else:
+             motion.get_data(frames)
         yaw.append(motion.angle)
         
-        print(1 / (timer() - start))
+        #print(1 / (timer() - start))
 
         #if (cv2.waitKey(1) & 0xFF == ord('q')):
         #	cv2.destroyAllWindows()

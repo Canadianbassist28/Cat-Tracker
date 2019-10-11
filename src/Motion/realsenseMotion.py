@@ -23,12 +23,15 @@ class realsenseMotion(object):
         self.angle = (0,0,0) #roll, pitch, yaw
         self.position = (0,0,0) #x,y,z
 
-    def get_data(self,frames):
+    def get_data(self,frames,time = None):
         """
         Extracts motion data from a frame and processes data into angle and position
         @param frames the collection of frames from pipeline.wait_for_frames()
         """
-        timeNow = timer()
+        if time == None:
+            timeNow = timer()
+        else:
+            timeNow = time
 
         #set last data
         self.lastGyroData = self.gyroData
@@ -40,23 +43,27 @@ class realsenseMotion(object):
 
         #retreive data from frame
         self.gyroData = gyroFrame.get_motion_data()
-        self.lastGyroTime = timeNow
         self.accelData = accelFrame.get_motion_data()
-        self.lastaccelTime = timeNow
 
         #integrate gyroData(rad/s) to get angle(rads) 
-        tmp = self.__integrate(self.gyroData, self.lastGyroData, self.lastGyroTime)
+        tmp = self.__integrate(self.gyroData, self.lastGyroData, timeNow, self.lastGyroTime)
         self.angle = tuple(map(sum, zip(self.angle, tmp)))
 
-    def __integrate(self, data, lastData, lastTime):
+
+        #set last time (must be done at end of this function)
+        self.lastGyroTime = timeNow
+        self.lastaccelTime = timeNow
+
+    def __integrate(self, data, lastData ,timeNow, lastTime):
         """ 
         Uses trapozoidal integration on a vector [x,y,z] 
         @param data newest data, (rs.vector) 
         @param lastData last data (rs.vector)
+        @param timeNow current time (float)
         @param lastTime last time (float)
         @return a tuple (x,y,z)
         """
-        width = (timer() - lastTime)
+        width = (timeNow - lastTime)
 
         xrect = width * lastData.x
         yrect = width * lastData.y
