@@ -19,8 +19,8 @@ profile = pipeline.start(cfg)
 yaw = []
 
 playback = profile.get_device().as_playback()
-isRecorded = False
 
+isRecorded = False
 if not playback.is_real_time():
     isRecorded = True
 
@@ -46,8 +46,8 @@ try:
             print(playback.get_position())
         else:
              motion.get_data(frames)
-        yaw.append(motion.linearAccel)
-        print(motion.linearAccel)
+        yaw.append(motion.velocity)
+        print(motion.velocity)
         
         #print(1 / (timer() - start))
 

@@ -60,13 +60,17 @@ class realsenseMotion(object):
         tmp = self.__integrate(self.gyro, self.lastGyro, timeNow)
         self.angle = tuple(map(sum, zip(self.angle, tmp)))
 
+        #------------------------------------------------------------
+        ###TODO: add noise reduction filter to the accelerometer data
+        #------------------------------------------------------------
+
         #compute linearaccel by adding the (unit vector of the angle) * (the accel due to gravity)
         angleUnit = self.__getUnitVector(self.angle)
         angleUnit = [x * (9.81) for x in angleUnit]
 
         self.linearAccel = tuple(map(sum, zip( angleUnit, self.accel)))
 
-        #integrate linearAccel(m/s^2) to get velocity(m/s) 
+        #integrate linearAccel(m/s^2) to get velocity(m/s)
         tmp = self.__integrate(self.linearAccel, self.lastLinearAccel, timeNow)
         self.velocity = tuple(map(sum, zip(self.velocity, tmp)))
 
@@ -102,6 +106,7 @@ class realsenseMotion(object):
         """
         From a vector (x,y,z) returns the unit vector in the original vector direction
         @param vector a tuple (x,y,z)
+        @return a tuple (ax, ay, az)
         """
         mag = sqrt(vector[0]**2 + vector[1]**2 + vector[2]**2)
 
