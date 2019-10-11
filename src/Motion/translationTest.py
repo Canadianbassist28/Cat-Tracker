@@ -46,7 +46,8 @@ try:
             print(playback.get_position())
         else:
              motion.get_data(frames)
-        yaw.append(motion.angle)
+        yaw.append(motion.linearAccel)
+        print(motion.linearAccel)
         
         #print(1 / (timer() - start))
 
@@ -55,6 +56,9 @@ try:
         #	break;
 finally:
     pipeline.stop()
+
+print("Plot Result")
+plt.grid()
 plt.plot(yaw)
 plt.show()
 
