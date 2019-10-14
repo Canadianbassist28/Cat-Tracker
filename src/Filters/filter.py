@@ -7,9 +7,10 @@ import matplotlib.pyplot as plt
 #create the pipeline
 pipeline = rs.pipeline()
 config = rs.config()
-config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 60) #reads form sensor
-config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-#config.enable_device_from_file("sample.bag") #reads form a file change the the .bag file name
+##config.enable_stream(rs.stream.gyro) #reads form sensor
+#config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 60) #reads form sensor
+#config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+config.enable_device_from_file("test.bag") #reads form a file change the the .bag file name
 
 #starts streaming
 profile = pipeline.start(config)
@@ -32,8 +33,8 @@ while True: # keeps going through the image
     """
     Apply color mapping to the depth data                                                               look at which color maping is beter opencv or realsense
     """
-    colorizer = rs.colorizer(0)                                                                         #can have few color format 0 jet 3 blk/wh 2 wh/blk
-    colorized_depth = np.asanyarray(colorizer.colorize(depth_frame).get_data())
+    colorizer = rs.colorizer(0)  #applying color scheme can have few color format 0 jet 3 blk/wh 2 wh/blk
+    colorized_depth = np.asanyarray(colorizer.colorize(depth_frame).get_data()) #put as a array to output
 
     colorized_depth_org = colorized_depth #creates a copy
 
