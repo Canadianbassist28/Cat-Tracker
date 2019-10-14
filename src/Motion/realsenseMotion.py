@@ -4,13 +4,16 @@
 """
 
 import pyrealsense2 as rs
+import numpy as np
 from time import clock as timer
-from math import sqrt
+
 
 class realsenseMotion(object):
     """
     Handles motion data from the realsense camera
-    """
+    Must call get_data every frame loop to update motion data
+    """    
+
     def __init__(self):
 
         self.accel = (0,0,0)
@@ -20,11 +23,12 @@ class realsenseMotion(object):
         self.lastLinearAccel = (0,0,0)
         self.lastVelocity= (0,0,0)
 
-        self.angle = (0,0,0) #roll, pitch, yaw (rads)
-        self.position = (0,0,0) #x,y,z (meters)
-        self.velocity = (0,0,0) #x,y,z (m/s)
+        self.Gyroangle = (0,0,0) ##roll, pitch, yaw (rads)
+        self.position = (0,0,0) ##x,y,z (meters)
+        self.velocity = (0,0,0) ##x,y,z (m/s)
+        self.angle = (0,0,0) #result of complementaryFilter()
 
-        #linearAccel uses rotation angle to remove gravity component from accel
+        ##linearAccel uses rotation angle to remove gravity component from accel
         self.linearAccel = (0,0,0) #x,y,z
 
         self.lastTime = timer()
@@ -52,23 +56,22 @@ class realsenseMotion(object):
         #retreive data from frame
         tmp = gyroFrame.get_motion_data()
         self.gyro = (tmp.x, tmp.y, tmp.z)
-
         tmp = accelFrame.get_motion_data()
         self.accel = (tmp.x, tmp.y, tmp.z)
 
         #integrate gyro(rad/s) to get angle(rads) 
         tmp = self.__integrate(self.gyro, self.lastGyro, timeNow)
         self.angle = tuple(map(sum, zip(self.angle, tmp)))
-
+        
         #------------------------------------------------------------
-        ###TODO: add noise reduction filter to the accelerometer data
+        ###TODO: add complementary filter to the accelerometer data
         #------------------------------------------------------------
 
-        #compute linearaccel by adding the (unit vector of the angle) * (the accel due to gravity)
-        angleUnit = self.__getUnitVector(self.angle)
-        angleUnit = [x * (9.81) for x in angleUnit]
-
-        self.linearAccel = tuple(map(sum, zip( angleUnit, self.accel)))
+        #calculate linearAccel by subtracting gravity component from accel
+        R = self.__getRotationMatrix()
+        g = np.array([[0], [9.81], [0]])
+        gravityComp = np.transpose(np.matmul(R, g))[0]
+        self.linearAccel = tuple(np.add(np.array(self.accel), gravityComp))
 
         #integrate linearAccel(m/s^2) to get velocity(m/s)
         tmp = self.__integrate(self.linearAccel, self.lastLinearAccel, timeNow)
@@ -77,7 +80,6 @@ class realsenseMotion(object):
         #integrate velocity(m/s) to get position(m) 
         tmp = self.__integrate(self.velocity, self.lastVelocity, timeNow)
         self.position = tuple(map(sum, zip(self.position, tmp)))
-
 
         #set last time !!!(must be done at end of this function)!!!
         self.lastTime = timeNow
@@ -108,6 +110,26 @@ class realsenseMotion(object):
         @param vector a tuple (x,y,z)
         @return a tuple (ax, ay, az)
         """
-        mag = sqrt(vector[0]**2 + vector[1]**2 + vector[2]**2)
+
+        mag = np.sqrt(vector[0]**2 + vector[1]**2 + vector[2]**2) * -1
 
         return [x/mag for x in vector] 
+
+    def __getRotationMatrix(self):
+        theta = self.angle
+
+        R_x = np.array([[1,         0,                  0               ],
+                        [0,         np.cos(theta[0]),   -np.sin(theta[0])],
+                        [0,         np.sin(theta[0]),   np.cos(theta[0])]])
+
+        R_y = np.array([[np.cos(theta[1]),    0,      np.sin(theta[1]) ],
+                        [0,                   1,      0                  ],
+                        [-np.sin(theta[1]),   0,      np.cos(theta[1]) ]])
+
+        R_z = np.array([[np.cos(theta[2]),      -np.sin(theta[2]),    0],
+                        [np.sin(theta[2]),      np.cos(theta[2]),     0],
+                        [0,                     0,                      1]])
+
+        R = np.dot(R_z, np.dot( R_y, R_x ))
+
+        return R

@@ -46,8 +46,7 @@ try:
             print(playback.get_position())
         else:
              motion.get_data(frames)
-        yaw.append(motion.velocity)
-        print(motion.velocity)
+        yaw.append(motion.accel)
         
         #print(1 / (timer() - start))
 
