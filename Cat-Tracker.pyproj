@@ -24,6 +24,9 @@
     <Compile Include="RealSense.py" />
     <Compile Include="src\Filters\filter.py" />
     <Compile Include="src\Filters\opencv_viewer.py" />
+    <Compile Include="src\Motion\calibration.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\Motion\realsenseMotion.py">
       <SubType>Code</SubType>
     </Compile>
