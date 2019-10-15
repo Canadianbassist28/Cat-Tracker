@@ -28,7 +28,11 @@ class realsenseMotion(object):
         ##linearAccel uses rotation angle to remove gravity component from accel
         self.linearAccel = (0,0,0) #x,y,z
 
-        self.lastTime = timer()
+        self.accelXBias = -.25
+        self.accelYBias = .3125
+        self.accelZBias = -.5
+
+        self.lastTime = 0
 
     def get_data(self,frames,time = None):
         """
@@ -54,7 +58,7 @@ class realsenseMotion(object):
         tmp = gyroFrame.get_motion_data()
         self.gyro = (tmp.x, tmp.y, tmp.z)
         tmp = accelFrame.get_motion_data()
-        self.accel = (tmp.x, tmp.y, tmp.z)
+        self.accel = (tmp.x , tmp.y , tmp.z )
 
         #-------integrate gyro(rad/s) to get angle(rads) 
         tmp = self.__integrate(self.gyro, self.lastGyro, timeNow)
@@ -89,7 +93,10 @@ class realsenseMotion(object):
         @param timeNow current time (float)
         @return a tuple (x,y,z)
         """
-        width = (timeNow - self.lastTime)
+        if self.lastTime != 0:
+            width = (timeNow - self.lastTime)
+        else: 
+            return 0,0,0
 
         xrect = width * lastData[0]
         yrect = width * lastData[1]

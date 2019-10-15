@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{1785c02d-1043-4703-bdae-30b6fac1b2a2}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>help.py</StartupFile>
+    <StartupFile>src\Motion\translationTest.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
