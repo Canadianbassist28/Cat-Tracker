@@ -7,10 +7,9 @@ import matplotlib.pyplot as plt
 #create the pipeline
 pipeline = rs.pipeline()
 config = rs.config()
-##config.enable_stream(rs.stream.gyro) #reads form sensor
 #config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 60) #reads form sensor
 #config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-config.enable_device_from_file("test.bag") #reads form a file change the the .bag file name
+config.enable_device_from_file("sample.bag") #reads form a file change the the .bag file name
 
 #starts streaming
 profile = pipeline.start(config)
@@ -33,15 +32,15 @@ while True: # keeps going through the image
     """
     Apply color mapping to the depth data                                                               look at which color maping is beter opencv or realsense
     """
-    colorizer = rs.colorizer(0)  #applying color scheme can have few color format 0 jet 3 blk/wh 2 wh/blk
-    colorized_depth = np.asanyarray(colorizer.colorize(depth_frame).get_data()) #put as a array to output
+    colorizer = rs.colorizer(0)                                                                         #can have few color format 0 jet 3 blk/wh 2 wh/blk
+    colorized_depth = np.asanyarray(colorizer.colorize(depth_frame).get_data())
 
     colorized_depth_org = colorized_depth #creates a copy
 
     #creates the colored image
-    cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-    cv2.imshow('RealSense', colorized_depth_org)
-    cv2.waitKey(1)
+    #cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
+    #cv2.imshow('RealSense', colorized_depth_org)
+
 
 
     """
@@ -116,7 +115,10 @@ while True: # keeps going through the image
     images = np.hstack((color_image, colorized_depth ))
     cv2.namedWindow('RealSenseSpatial', cv2.WINDOW_AUTOSIZE)
     cv2.imshow('RealSenseSpatial', images)                                                         #can use cv2.destroy(winname) to close the window and  dealocate 
-    cv2.waitKey(1)
+    
+    if (cv2.waitKey(1) & 0xFF == ord('q')):
+        cv2.destroyAllWindows()
+        break;
     #other filters to look threshold depth to desparity temporal
     #temporal disparity
 

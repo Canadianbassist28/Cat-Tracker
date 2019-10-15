@@ -24,6 +24,12 @@
     <Compile Include="RealSense.py" />
     <Compile Include="src\Filters\filter.py" />
     <Compile Include="src\Filters\opencv_viewer.py" />
+    <Compile Include="src\Motion\calibration.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\Motion\realsenseMotion.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\Motion\translationTest.py">
       <SubType>Code</SubType>
     </Compile>
@@ -33,6 +39,9 @@
     <Folder Include="src\Filters\" />
     <Folder Include="src\Motion\" />
     <Folder Include="src\Image\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="meetingMinutes.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

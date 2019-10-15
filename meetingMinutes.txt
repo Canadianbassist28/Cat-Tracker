@@ -1,0 +1,9 @@
+Scrum 1 (10/3/2019):
+	- Talked about storage. ignoring frames
+	- talking about mapping algorithms (google indoor mapping API)
+
+Scrum 2 (10/7/2019):
+	-Evan looked into mapping algorithms
+	-Dylan added class for handleing motion data
+	-keven looked into storage formats for raw data from the camera
+	-erika continued work on threshold filter
