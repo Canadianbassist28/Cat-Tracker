@@ -7,3 +7,10 @@ Scrum 2 (10/7/2019):
 	-Dylan added class for handleing motion data
 	-keven looked into storage formats for raw data from the camera
 	-erika continued work on threshold filter
+
+
+scrum 3 (10/16/2019):
+	- Evan Still working with different mapping algorithms
+	- Dylan applied classes for motion data
+	- Kevin working on classes in python for mapping	
+	- Erika continuing threshold filter
