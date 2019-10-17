@@ -6,7 +6,7 @@ import numpy as np
 
 
 #create the pipeline
-pipeline = rs.pipeline()
+pipeline = rs.pipeline() 
 config = rs.config()
 config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30) 
                     #set type of stream stream type depth gyro etc res, format, frame 
