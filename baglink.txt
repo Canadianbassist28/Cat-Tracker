@@ -5,6 +5,7 @@ link for folder containing all sample bag files.
 https://catmailohio-my.sharepoint.com/:f:/g/personal/kh615416_ohio_edu/EqIOZh6193ZNsnlx6VjtxDQBaypSWI4tRAkZICK-9jevoA?e=SmKwbE
 
 files name and info.
+calibratedmption: Motion: motion stream after calibration. 
 MotionTripod: Motion: recording on the trypod.
 MotionDesk: Motion: Cammera sitting on the desk with the camera faceing the ceiling.
 sample.bag: All sensors: stream of a hallway.
