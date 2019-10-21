@@ -27,9 +27,14 @@ class realsenseMap(object):
         I will need a group of functions called Turn 
         which is a boolean that return true if we turn left, right, up and down
         """
-        
-        """
-        I will also need function called distance which 
+    #-----this function will print the data type thats associated    
+   def print(self.data)
+    print self.xaxis
+    print self.yaxis
+    print self.zaxis
+    print self.axis
+
+"""I will also need function called distance which 
         will calulate distance from a wall
         """
         
