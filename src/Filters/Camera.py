@@ -18,12 +18,12 @@ class realsenseBackbone:                                                        
     def setConfig(self):
         #sets the config setting for the cammera
         config = rs.config()
-        #config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)          #set res to 1280 720
-        #config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+        config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)          #set res to 1280 720
+        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
         #config.enable_stream(rs.stream.accel)
         #config.enable_stream(rs.stream.gyro)
 
-        config.enable_device_from_file("test.bag")    #can do ,false to not repeat
+        #config.enable_device_from_file("sample.bag", False)    #can do ,false to not repeat
         return config
 
     def getpipeline(self):
@@ -54,20 +54,50 @@ class realsenseBackbone:                                                        
          colorImage = np.asanyarray(colorFrame.get_data())
          return colorImage
 
-    def depthImageCV2(self, frame):
-        #inputs the frame calls deoth frame to get depth frame.
-        #the apply color mappuing to the image into a numpyarray to be displayed in cv2
-        depthFrame = self.getDepthFrame(frame)
+    def depthImageCV2(self, depthFrame):
+        #inputs the depth frame
+        #then apply color mappuing to the image into a numpyarray to be displayed in cv2
         colorized = rs.colorizer(0)                                       #can change vaule for color map
         colorized_depth = np.asanyarray(colorized.colorize(depthFrame).get_data())
         return colorized_depth
 
-    def distancePixel(self,depthImage, x, y):
-        #send frame and get the frame
-        distance = depthImage.get_distance(x, y)
+    def distancePixel(self,depthFrame, x, y):
+        #takes in a depth frame form the camera and cordinates of the pixel 
+        #that the depth is wanted. returns the depth in meters
+        distance = depthFrame.get_distance(x, y)
         return distance
 
-        #for loop in main to continuelsy get frames.
+    """
+    Filters settings.
+    must call depthimageCv2 to display any filters
+    To get decimation to work must apply after hole filing not before.
+    """
+    def decimation(self, frame):
+        #apply decimation filter to the frame that is sent in. Downscaling
+        #must call depthImageCV2 to display
+
+        decimation = rs.decimation_filter()
+        decimation.set_option(rs.option.filter_magnitude, 2)
+        decimated_depth = decimation.process(frame)
+        return decimated_depth
+
+    def spatial(self, frame):
+        #apply spatial filtering to the frame sent in 
+        spatial = rs.spatial_filter()
+        spatial.set_option(rs.option.filter_magnitude, 5)
+        spatial.set_option(rs.option.filter_smooth_alpha, .25)
+        spatial.set_option(rs.option.filter_smooth_delta, 50)
+        #spatial.set_option(rs.option.holes_fill, 3)
+        filtered_depth = spatial.process(frame)
+        return filtered_depth
+
+    def hole(slef, frame):
+        hole_filling = rs.hole_filling_filter()
+        holeFilling = hole_filling.process(depth_frame)
+        return holeFilling
+
+
+
 
 
 
@@ -77,19 +107,31 @@ pipeline = profile.getpipeline()
 
 while True: #keeps going while it is reciving data
         
-    frames = profile.getFrames() #get the frame from the camera 
-    depth_image = profile.depthImageCV2(frames)
+    frames = profile.getFrames() #get the frame from the camera
+    depth_frame = profile.getDepthFrame(frames)
+    depth_image = profile.depthImageCV2(depth_frame)
     color_image = profile.colorImageCV2(frames)
 
-    #dist = profile.distance(0,0)
-    print(profile.distancePixel(frame ,0 ,0))
+    
 
     # Stack both images horizontally see both images in same window
-    images = np.hstack((color_image, depth_image))
+    deci1 = profile.spatial(depth_frame)
+    #hole = profile.hole(deci1)
+    deci = profile.decimation(deci1)
+    image1 = profile.depthImageCV2(deci)
+    #image2 = profile.depthImageCV2(deci1)
+    #images = np.hstack((image1, image2))
+
+    #get teh depth of at a pixel
+    print(profile.distancePixel(depth_frame ,320, 240))
+
+    #get the size of the iamge
+    #dimensions = image1.shape
+    #print ("Image dimensions: ", dimensions)
 
     # Show images
     cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-    cv2.imshow('RealSense', images)
+    cv2.imshow('RealSense', image1 )
     cv2.waitKey(1)
 
     if (cv2.waitKey(1) & 0xFF == ord('q')):
