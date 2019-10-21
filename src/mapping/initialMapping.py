@@ -8,6 +8,7 @@ from time import clock as timer
 import cv2
 import calibration as calibrate
 import Camera as camera
+from motion import realsenseMotion as motionpy
 
 algorithms.py: SLAM algorithms
 '''
