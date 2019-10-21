@@ -20,25 +20,25 @@ class realsenseMotion(object):
         self.lastLinearAccel = (0,0,0)
         self.lastVelocity= (0,0,0)
 
-        self.Gyroangle = (0,0,0) ##pitch, yaw, roll(rads)
+        self.accelAngle = (0,0,0) ##pitch, yaw, roll(rads)
         self.position = (0,0,0) ##x,y,z (meters)
         self.velocity = (0,0,0) ##x,y,z (m/s)
-        self.angle = (0,0,0) #result of complementaryFilter()
+        self.angle = (0,0,0) 
 
         ##linearAccel uses rotation angle to remove gravity component from accel
         self.linearAccel = (0,0,0) #x,y,z
 
-        self.accelXBias = -.25
-        self.accelYBias = .3125
-        self.accelZBias = -.5
+        self.accelXBias = .542
+        self.accelYBias = 0.25
+        self.accelZBias = -1.2
 
         self.lastTime = 0
 
     def get_data(self,frames,time = None):
         """
         Extracts motion data from a frame and processes data into angle, veclocity, and position
-        @param frames the collection of frames from pipeline.wait_for_frames()
-        @param time current time, used if stream is playing back in non-realtime
+        @param frames rs.composite_frames from pipeline.wait_for_frames()
+        @param time current time in seconds, used if stream is playing back in non-realtime
         """
         if time == None:
             timeNow = timer()
@@ -58,12 +58,13 @@ class realsenseMotion(object):
         tmp = gyroFrame.get_motion_data()
         self.gyro = (tmp.x, tmp.y, tmp.z)
         tmp = accelFrame.get_motion_data()
-        self.accel = (tmp.x , tmp.y , tmp.z )
+        self.accel = (tmp.x + self.accelXBias, tmp.y + self.accelYBias, tmp.z + self.accelZBias)
 
         #-------integrate gyro(rad/s) to get angle(rads) 
         tmp = self.__integrate(self.gyro, self.lastGyro, timeNow)
         self.angle = tuple(map(sum, zip(self.angle, tmp)))
         
+        self.__getAccelAngle()
         #------------------------------------------------------------
         ###TODO: add complementary filter to the accelerometer data
         #------------------------------------------------------------
@@ -90,7 +91,7 @@ class realsenseMotion(object):
         Uses trapozoidal integration on a vector [x,y,z] 
         @param data newest data, a tuple (x,y,z)
         @param lastData last data, a tuple (x,y,z)
-        @param timeNow current time (float)
+        @param timeNow current time in seconds (float)
         @return a tuple (x,y,z)
         """
         if self.lastTime != 0:
@@ -141,3 +142,15 @@ class realsenseMotion(object):
         mag = np.sqrt(vector[0]**2 + vector[1]**2 + vector[2]**2) * -1
 
         return [x/mag for x in vector] 
+
+    def __getAccelAngle(self):
+        X = self.accel[1]
+        Y = self.accel[2]
+        Z = self.accel[0]   
+
+        roll = np.arctan2(Y, Z)
+        pitch = np.arctan2(-X, np.sqrt(Y**2 + Z**2))
+
+        self.accelAngle = (roll, 0, pitch)
+        #print(self.accelAngle, "|", self.angle)
+        

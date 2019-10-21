@@ -7,6 +7,7 @@ from realsenseMotion import realsenseMotion
 from time import clock as timer
 timer() 
 
+
 pipeline = rs.pipeline()
 cfg = rs.config()
 #cfg.enable_stream(rs.stream.accel)
@@ -14,8 +15,9 @@ cfg = rs.config()
 cfg.enable_device_from_file("sample.bag", False)
 
 profile = pipeline.start(cfg)
-yaw = []
 
+
+plotData = []
 motion = realsenseMotion()
 print("starting stream...")
 try:
@@ -28,11 +30,12 @@ try:
         except:
             break
 
-
         motion.get_data(frames, timeStamp)
+
+
         cv2.namedWindow('RealSenseSpatial', cv2.WINDOW_AUTOSIZE)
     
-        yaw.append(motion.linearAccel)
+        plotData.append(motion.velocity)
 
         #print(1 / (timer() - start))
 
@@ -44,12 +47,5 @@ finally:
 cv2.destroyAllWindows()
 print("Plot Result")
 plt.grid()
-plt.plot(yaw)
+plt.plot(plotData)
 plt.show()
-
-#depth_sensor = profile.get_device().first_depth_sensor()
-#preset_range = depth_sensor.get_option_range(rs.option.visual_preset)
-#print(str(preset_range.default))
-#for i in range(int(preset_range.max)):
-#    print(depth_sensor.get_option_value_description(rs.option.visual_preset,i))
-#    print(i)
