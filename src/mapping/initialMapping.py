@@ -1,3 +1,7 @@
+
+''' This is a test code that I found that I'm going to be basing my mapping system off of
+
+
 import pyrealsense as rs
 import numpy as np
 from time import clock as timer
