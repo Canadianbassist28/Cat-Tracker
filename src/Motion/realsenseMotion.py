@@ -28,10 +28,13 @@ class realsenseMotion(object):
         ##linearAccel uses rotation angle to remove gravity component from accel
         self.linearAccel = (0,0,0) #x,y,z
 
-        self.accelXBias = .542
-        self.accelYBias = 0.25
-        self.accelZBias = -1.2
+        self.accelBias = (.56, 0.25, -1.3)
+        self.accelSlope = (-1.3e-5, 1, 3.06e-5)
 
+        self.accelBuf = []
+        self.accelBufSize = 20
+
+        self.frameCount = 0
         self.lastTime = 0
 
     def get_data(self,frames,time = None):
@@ -58,33 +61,34 @@ class realsenseMotion(object):
         tmp = gyroFrame.get_motion_data()
         self.gyro = (tmp.x, tmp.y, tmp.z)
         tmp = accelFrame.get_motion_data()
-        self.accel = (tmp.x + self.accelXBias, tmp.y + self.accelYBias, tmp.z + self.accelZBias)
+        self.accel = (tmp.x + self.accelBias[0], tmp.y + self.accelBias[1], tmp.z + self.accelBias[2])
+
+        #apply running average filter
+        self.accel = self.__accelFilter(self.accel)
 
         #-------integrate gyro(rad/s) to get angle(rads) 
         tmp = self.__integrate(self.gyro, self.lastGyro, timeNow)
-        self.angle = tuple(map(sum, zip(self.angle, tmp)))
-        
-        self.__getAccelAngle()
-        #------------------------------------------------------------
-        ###TODO: add complementary filter to the accelerometer data
-        #------------------------------------------------------------
+        self.angle = tuple(map(sum, zip(self.angle, tmp)))      
 
-        #-------calculate linearAccel by subtracting gravity component from accel
-        R = self.__getRotationMatrix()
-        g = np.array([[0], [9.81], [0]])
-        gravityVector = np.transpose(np.matmul(R, g))[0]
-        self.linearAccel = tuple(np.add(np.array(self.accel), gravityVector))
+        if len(self.accelBuf) > 5:
+            #-------calculate linearAccel by subtracting gravity component from accel
+            R = self.__getRotationMatrix()
+            g = np.array([[0], [9.81], [0]])
+            gravityVector = np.transpose(np.matmul(R, g))[0]
+            self.linearAccel = tuple(np.add(np.array(self.accel), gravityVector))
 
-        #-------integrate linearAccel(m/s^2) to get velocity(m/s)
-        tmp = self.__integrate(self.linearAccel, self.lastLinearAccel, timeNow)
-        self.velocity = tuple(map(sum, zip(self.velocity, tmp)))
+            #-------integrate linearAccel(m/s^2) to get velocity(m/s)
+            tmp = self.__integrate(self.linearAccel, self.lastLinearAccel, timeNow)
+            #tmp = np.matmul(np.array(tmp), R)
+            self.velocity = tuple(map(sum, zip(self.velocity, tmp)))
 
-        #-------integrate velocity(m/s) to get position(m) 
-        tmp = self.__integrate(self.velocity, self.lastVelocity, timeNow)
-        self.position = tuple(map(sum, zip(self.position, tmp)))
+            #-------integrate velocity(m/s) to get position(m) 
+            tmp = self.__integrate(self.velocity, self.lastVelocity, timeNow)
+            self.position = tuple(map(sum, zip(self.position, tmp)))
 
         #set last time !!!(must be done at end of this function)!!!
         self.lastTime = timeNow
+        self.frameCount += 1
 
     def __integrate(self, data, lastData , timeNow):
         """ 
@@ -154,3 +158,16 @@ class realsenseMotion(object):
         self.accelAngle = (roll, 0, pitch)
         #print(self.accelAngle, "|", self.angle)
         
+    def __accelFilter(self, newData):
+        if len(self.accelBuf) == self.accelBufSize:
+            self.accelBuf.pop()
+            self.accelBuf.append(newData)
+        else:
+            self.accelBuf.append(newData)
+            #return newData
+
+        result = (0,0,0)
+        for i in self.accelBuf:
+            result = tuple(map(sum, zip(result, i)))
+
+        return [x/len(self.accelBuf) for x in result]
