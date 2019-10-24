@@ -11,7 +11,7 @@ class realsenseMotion(object):
     @author Dylan Wright dw437013@ohio.edu
     """    
 
-    def __init__(self):
+    def __init__(self, runCalibration = False):
 
         self.accel = (0,0,0)
         self.gyro = (0,0,0)
@@ -28,13 +28,24 @@ class realsenseMotion(object):
         ##linearAccel uses rotation angle to remove gravity component from accel
         self.linearAccel = (0,0,0) #x,y,z
 
-        self.accelBias = (.56, 0.25, -1.3)
-        self.accelSlope = (-1.3e-5, 1, 3.06e-5)
-
+        self.accelBias = (0,0,0)
+        self.accelCalBuf = []
         self.accelBuf = []
-        self.accelBufSize = 20
+        self.accelBufSize = 3
 
-        self.frameCount = 0
+        self.gyroBias = (0,0,0)
+        self.gyroCalBuf = []
+        self.gyroBuf = []
+        self.gyroBufSize = 3
+        self.isCalibrated = False
+        self.caliBufSize = 750
+
+        if not runCalibration:
+            self.gyroBias = (.00079, -.00050, -.0005)
+            self.accelBias = (.567, .256, -1.316)
+            self.isCalibrated = True
+
+        self.tick = 0
         self.lastTime = 0
 
     def get_data(self,frames,time = None):
@@ -59,36 +70,47 @@ class realsenseMotion(object):
 
         #retreive data from frame
         tmp = gyroFrame.get_motion_data()
-        self.gyro = (tmp.x, tmp.y, tmp.z)
+        self.gyro = (tmp.x + self.gyroBias[0],
+                     tmp.y + self.gyroBias[1],
+                     tmp.z + self.gyroBias[2])
+
         tmp = accelFrame.get_motion_data()
-        self.accel = (tmp.x + self.accelBias[0], tmp.y + self.accelBias[1], tmp.z + self.accelBias[2])
+        self.accel = ((tmp.x) + self.accelBias[0],
+                      (tmp.y) + self.accelBias[1],
+                      (tmp.z) + self.accelBias[2])
+
+        if not self.isCalibrated:
+            self.__calibrate()
 
         #apply running average filter
-        self.accel = self.__accelFilter(self.accel)
+        #self.accel = self.__accelFilter()
+        #self.gyro = self.__gyroFilter()
 
         #-------integrate gyro(rad/s) to get angle(rads) 
         tmp = self.__integrate(self.gyro, self.lastGyro, timeNow)
         self.angle = tuple(map(sum, zip(self.angle, tmp)))      
 
-        if len(self.accelBuf) > 5:
-            #-------calculate linearAccel by subtracting gravity component from accel
-            R = self.__getRotationMatrix()
-            g = np.array([[0], [9.81], [0]])
-            gravityVector = np.transpose(np.matmul(R, g))[0]
-            self.linearAccel = tuple(np.add(np.array(self.accel), gravityVector))
+        #-------calculate linearAccel by subtracting gravity component from accel
 
-            #-------integrate linearAccel(m/s^2) to get velocity(m/s)
-            tmp = self.__integrate(self.linearAccel, self.lastLinearAccel, timeNow)
-            #tmp = np.matmul(np.array(tmp), R)
-            self.velocity = tuple(map(sum, zip(self.velocity, tmp)))
+        R = self.__getRotationMatrix()
+        g = np.array([[0], [9.81], [0]])
+        gravityVector = np.transpose(np.matmul(R, g))[0]
+        self.linearAccel = tuple(np.add(np.array(self.accel), gravityVector))
 
-            #-------integrate velocity(m/s) to get position(m) 
-            tmp = self.__integrate(self.velocity, self.lastVelocity, timeNow)
-            self.position = tuple(map(sum, zip(self.position, tmp)))
+        #-------integrate linearAccel(m/s^2) to get velocity(m/s)
 
-        #set last time !!!(must be done at end of this function)!!!
+        tmp = self.__integrate(self.linearAccel, self.lastLinearAccel, timeNow)
+        tmp = np.matmul(np.array(tmp), R)
+        self.velocity = tuple(map(sum, zip(self.velocity, tmp)))
+
+        #-------integrate velocity(m/s) to get position(m)
+        # 
+        tmp = self.__integrate(self.velocity, self.lastVelocity, timeNow)
+        self.position = tuple(map(sum, zip(self.position, tmp)))
+
+        #set last time and increment tick !!!(must be done at end of this function)!!!
         self.lastTime = timeNow
-        self.frameCount += 1
+        self.tick += 1
 
     def __integrate(self, data, lastData , timeNow):
         """ 
@@ -158,16 +180,74 @@ class realsenseMotion(object):
         self.accelAngle = (roll, 0, pitch)
         #print(self.accelAngle, "|", self.angle)
         
-    def __accelFilter(self, newData):
+    def __accelFilter(self):
+        """
+        Applies a running average filter to the accelerometer data
+        """
+        newData = self.accel
         if len(self.accelBuf) == self.accelBufSize:
             self.accelBuf.pop()
             self.accelBuf.append(newData)
         else:
             self.accelBuf.append(newData)
-            #return newData
+            return newData
 
         result = (0,0,0)
         for i in self.accelBuf:
             result = tuple(map(sum, zip(result, i)))
 
         return [x/len(self.accelBuf) for x in result]
+
+    def __gyroFilter(self):
+        """
+        Applies a running average filter to the gyroerometer data
+        """
+        newData = self.gyro
+        if len(self.gyroBuf) == self.gyroBufSize:
+            self.gyroBuf.pop()
+            self.gyroBuf.append(newData)
+        else:
+            self.gyroBuf.append(newData)
+            return newData
+
+        result = (0,0,0)
+        for i in self.gyroBuf:
+            result = tuple(map(sum, zip(result, i)))
+
+        return [x/len(self.gyroBuf) for x in result]
+
+    def __calibrate(self):
+
+        if not self.isCalibrated:
+            if len(self.gyroCalBuf) < self.caliBufSize:
+                self.gyroCalBuf.append(self.gyro)
+                self.accelCalBuf.append(self.accel)
+            else:
+                xGyroAvg = yGyroAvg = zGyroAvg = 0
+                for i in self.gyroCalBuf:
+                    x, y, z = i
+                    xGyroAvg += x
+                    yGyroAvg += y
+                    zGyroAvg += z
+                xGyroAvg /= self.caliBufSize
+                yGyroAvg /= self.caliBufSize
+                zGyroAvg /= self.caliBufSize
+                self.gyroBias = (-xGyroAvg, -yGyroAvg, -zGyroAvg)
+                self.angle = (0,0,0)
+                print("Gyro Calibrated: " + str(self.gyroBias))
+
+                xAccelAvg = yAccelAvg = zAccelAvg = 0
+                for i in self.accelCalBuf:
+                    x, y, z = i
+                    xAccelAvg += x
+                    yAccelAvg += y
+                    zAccelAvg += z
+                xAccelAvg /= self.caliBufSize
+                yAccelAvg = (yAccelAvg / self.caliBufSize) + 9.81
+                zAccelAvg /= self.caliBufSize
+
+                self.accelBias = (-xAccelAvg, -yAccelAvg, -zAccelAvg)
+                print("Accel Calibrated: " + str(self.accelBias))
+                self.velocity = (0,0,0)
+                self.position = (0,0,0)
+                self.isCalibrated = True
