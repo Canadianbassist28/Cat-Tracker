@@ -21,8 +21,8 @@ class realsenseBackbone():                                                      
         config = rs.config()
         config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)          #set res to 1280 720
         config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-        config.enable_stream(rs.stream.accel)
-        config.enable_stream(rs.stream.gyro)
+        config.enable_stream(rs.stream.accel, rs.format.motion_xy32f, 250)
+        config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
 
         #config.enable_device_from_file("sample.bag", False)    #can do ,false to not repeat
         return config
@@ -101,6 +101,14 @@ class realsenseBackbone():                                                      
         threshold_filter = rs.threshold_filter(minDistance, maxDistance)
         return threshold_filter.process(frame)
 
+    def 3dPoint(self,x,y)
+        #gives the relative postion of a pixel to the cammera. based on pixel position
+        depth_sensor = self.profile.get_device().first_depth_sensor()
+        depth_scale = depth_sensor.get_depth_scale()
+        depth_intrins = backbone.profile.get_stream(rs.stream.depth).as_video_stream_profile().get_intrinsics()
+        deproject = rs.rs2_deproject_pixel_to_point( depth_intrins,[320, 240], depth_scale))
+        return deproject
+        #doing only one pixel
 
 
 
@@ -131,12 +139,15 @@ if __name__ == "__main__":
         #image2 = backbone.depthImageCV2(deci1)
         #images = np.hstack((image1, image2))
 
-        #get the depth of at a pixel
+        #get the depth of at a pixel relative to tbe camera or a 3d point distance relative to cammera
         depth_sensor = backbone.profile.get_device().first_depth_sensor()
         depth_scale = depth_sensor.get_depth_scale()
 
         depth_intrins = backbone.profile.get_stream(rs.stream.depth).as_video_stream_profile().get_intrinsics()
         print(rs.rs2_deproject_pixel_to_point( depth_intrins,[320, 240], depth_scale))
+        #doing only one pixel
+
+
 
         #get the size of the iamge
         #dimensions = image1.shape
@@ -147,6 +158,7 @@ if __name__ == "__main__":
         cv2.imshow('RealSense', image1 )
         cv2.waitKey(1)
 
+        #end the program when the windows is closed
         if (cv2.waitKey(1) & 0xFF == ord('q')):
             cv2.destroyAllWindows()
             break;
@@ -154,3 +166,6 @@ if __name__ == "__main__":
 
 pipeline.stop()
 
+
+#work on countor going through the list thats made and processing increments of the pixels and return a 3d point look at getting th contour smother 
+#list of pixel pointes
