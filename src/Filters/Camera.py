@@ -19,12 +19,12 @@ class realsenseBackbone():                                                      
     def setConfig(self):
         #sets the config setting for the cammera
         config = rs.config()
-        config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)          #set res to 1280 720
-        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-        config.enable_stream(rs.stream.accel, rs.format.motion_xy32f, 250)
-        config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
+        #config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)          #set res to 1280 720
+        #config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+        #config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 250)
+        #config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
 
-        #config.enable_device_from_file("sample.bag", False)    #can do ,false to not repeat
+        config.enable_device_from_file("sample.bag")    #can do ,false to not repeat
         return config
 
     def getpipeline(self):
@@ -68,6 +68,19 @@ class realsenseBackbone():                                                      
         distance = depthFrame.get_distance(x, y)
         return distance
 
+    def threePoint(self,x,y):
+        """
+        Determines the realtive position of the cordinate fro the pesepctive of the cammera.
+        @param x coordinate of the pixel
+        @param y coordinate of the pixel
+        @retrun returns the relative postiton
+        """
+        depth_sensor = self.profile.get_device().first_depth_sensor()
+        depth_scale = depth_sensor.get_depth_scale()
+        depth_intrins = self.profile.get_stream(rs.stream.depth).as_video_stream_profile().get_intrinsics()
+        deproject = rs.rs2_deproject_pixel_to_point( depth_intrins,[320, 240], depth_scale)
+        return deproject
+
     """
     Filters settings.
     must call depthimageCv2 to display any filters
@@ -101,14 +114,6 @@ class realsenseBackbone():                                                      
         threshold_filter = rs.threshold_filter(minDistance, maxDistance)
         return threshold_filter.process(frame)
 
-    def 3dPoint(self,x,y)
-        #gives the relative postion of a pixel to the cammera. based on pixel position
-        depth_sensor = self.profile.get_device().first_depth_sensor()
-        depth_scale = depth_sensor.get_depth_scale()
-        depth_intrins = backbone.profile.get_stream(rs.stream.depth).as_video_stream_profile().get_intrinsics()
-        deproject = rs.rs2_deproject_pixel_to_point( depth_intrins,[320, 240], depth_scale))
-        return deproject
-        #doing only one pixel
 
 
 
@@ -117,6 +122,7 @@ class realsenseBackbone():                                                      
 backbone = realsenseBackbone()
 motion = realsenseMotion()
 pipeline = backbone.getpipeline()
+colorizer = rs.colorizer(3)
 
 if __name__ == "__main__":
     while True: #keeps going while it is reciving data
@@ -125,37 +131,50 @@ if __name__ == "__main__":
         frames = backbone.getFrames() #get the frame from the camera
         timeStamp = frames.get_timestamp() / 1000
         motion.get_data(frames, timeStamp) 
-        print(motion.velocity)
+        #print(motion.velocity)
 
         depth_frame = backbone.getDepthFrame(frames)
-        depth_image = backbone.depthImageCV2(depth_frame)
         color_image = backbone.colorImageCV2(frames)
 
-        # Stack both images horizontally see both images in same window
-        deci1 = backbone.spatial(depth_frame)
-        #hole = backbone.hole(deci1)
-        #deci = backbone.decimation(deci1)
-        image1 = backbone.depthImageCV2(deci)
-        #image2 = backbone.depthImageCV2(deci1)
-        #images = np.hstack((image1, image2))
+        disparity = rs.disparity_transform(True)
 
-        #get the depth of at a pixel relative to tbe camera or a 3d point distance relative to cammera
-        depth_sensor = backbone.profile.get_device().first_depth_sensor()
-        depth_scale = depth_sensor.get_depth_scale()
+        # apply the filteras and threshold filter to the image
+        #threshold = backbone.threshold(depth_frame, 2, 4)
+        depthFrame = backbone.threshold(depth_frame, 2.5, 5)
+        depthFrame = backbone.hole(depthFrame)
+        depthFrame = disparity.process(depthFrame) 
+        depthFrame = backbone.spatial(depthFrame)
 
-        depth_intrins = backbone.profile.get_stream(rs.stream.depth).as_video_stream_profile().get_intrinsics()
-        print(rs.rs2_deproject_pixel_to_point( depth_intrins,[320, 240], depth_scale))
-        #doing only one pixel
+        #deci = backbone.decimation(hole)
+        depthImage = colorizer.colorize(depth_frame)
+        depthImage = np.asanyarray(depthImage.get_data())
+        depthFrame = colorizer.colorize(depthFrame)
+        depthFrame = np.asanyarray(depthFrame.get_data())
 
+
+        """
+        Apply countour to the image
+        In range deterine if th inputed array is within the range of the other two array
+        and outputs an array
+        """
+        low = np.array([110, 110, 110])
+        high = np.array([150, 150, 150])
+        mask = cv2.inRange(depthFrame, low, high)
+        tmp = cv2.bitwise_and(depthImage, color_image, mask = mask)   #calculates the bitwise conjunction of two array
+        cnts,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        cv2.drawContours(color_image, cnts,-1, [0,255,0], 2)
 
 
         #get the size of the iamge
         #dimensions = image1.shape
         #print ("Image dimensions: ", dimensions)
+        #position = backbone.threePoint(500, 500)
+        #print(position)
 
         # Show images
         cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-        cv2.imshow('RealSense', image1 )
+        res = np.hstack((tmp, color_image))
+        cv2.imshow('RealSense', res)
         cv2.waitKey(1)
 
         #end the program when the windows is closed
