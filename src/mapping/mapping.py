@@ -1,7 +1,8 @@
 import pyrealsense2 as rs
 import numpy as np
+from timeit import default_timer as timer
 
-from src.motion.realsenseMotion import realsenseMotion as dylanMotion
+from src.motion.realsenseMotion import realsenseMotion as Motion
 
 
 class realsenseMap(object):
@@ -21,18 +22,28 @@ class realsenseMap(object):
         self.zaxis=0
         self.angle=0 
 
-        self.data = [0,0,0,0]
+        
+        self.data=[()]
 
         """ 
         I will need a group of functions called Turn 
         which is a boolean that return true if we turn left, right, up and down
         """
-    #-----this function will print the data type thats associated    
+    """-----this function will print the data type thats associated  """
+
+    def load (self):
+        while(is on)
+            Motion.self.position=(self.xaxis, self.yaxis, self.zaxis)
+            self.data[position, angle]
+
    def print(self.data)
     print self.xaxis
     print self.yaxis
     print self.zaxis
     print self.axis
+
+   def turn_left(self.data)
+    
 
 """I will also need function called distance which 
         will calulate distance from a wall
