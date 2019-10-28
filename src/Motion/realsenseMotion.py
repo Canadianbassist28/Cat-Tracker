@@ -7,7 +7,7 @@ from time import clock as timer
 class realsenseMotion(object):
     """
     Handles motion data from the realsense camera
-    Must call get_data every frame loop to update motion data
+    Must call get_data() every frame loop to update motion data
     @author Dylan Wright dw437013@ohio.edu
     """    
 
@@ -37,8 +37,9 @@ class realsenseMotion(object):
         self.gyroCalBuf = []
         self.gyroBuf = []
         self.gyroBufSize = 3
+
         self.isCalibrated = False
-        self.caliBufSize = 750
+        self.caliBufSize = 500
 
         if not runCalibration:
             self.gyroBias = (.00079, -.00050, -.0005)
@@ -82,10 +83,6 @@ class realsenseMotion(object):
         if not self.isCalibrated:
             self.__calibrate()
 
-        #apply running average filter
-        #self.accel = self.__accelFilter()
-        #self.gyro = self.__gyroFilter()
-
         #-------integrate gyro(rad/s) to get angle(rads) 
         tmp = self.__integrate(self.gyro, self.lastGyro, timeNow)
         self.angle = tuple(map(sum, zip(self.angle, tmp)))      
@@ -104,7 +101,7 @@ class realsenseMotion(object):
         self.velocity = tuple(map(sum, zip(self.velocity, tmp)))
 
         #-------integrate velocity(m/s) to get position(m)
-        # 
+        
         tmp = self.__integrate(self.velocity, self.lastVelocity, timeNow)
         self.position = tuple(map(sum, zip(self.position, tmp)))
 
@@ -217,12 +214,16 @@ class realsenseMotion(object):
         return [x/len(self.gyroBuf) for x in result]
 
     def __calibrate(self):
+        """
+        Calculates Biases for accelerometer and gyro at system start-up
+        """
 
         if not self.isCalibrated:
             if len(self.gyroCalBuf) < self.caliBufSize:
                 self.gyroCalBuf.append(self.gyro)
                 self.accelCalBuf.append(self.accel)
             else:
+                #calibrate gyro
                 xGyroAvg = yGyroAvg = zGyroAvg = 0
                 for i in self.gyroCalBuf:
                     x, y, z = i
@@ -236,6 +237,7 @@ class realsenseMotion(object):
                 self.angle = (0,0,0)
                 print("Gyro Calibrated: " + str(self.gyroBias))
 
+                #calibrate accel
                 xAccelAvg = yAccelAvg = zAccelAvg = 0
                 for i in self.accelCalBuf:
                     x, y, z = i
