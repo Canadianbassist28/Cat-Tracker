@@ -16,7 +16,7 @@ cfg = rs.config()
 #cfg.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 60) #reads form sensor
 cfg.enable_device_from_file("sample.bag", True)
 
-profile = pipeline.start(cfg)\
+profile = pipeline.start(cfg)
 
 plot = []
 XplotData = []
@@ -44,8 +44,8 @@ try:
             break
         motion.get_data(frames, timeStamp)
 
-
         depthFrame = frames.get_depth_frame()
+
         depthFrame1 = thresholdFilter.process(depthFrame)
         depthFrame1 = disparity.process(depthFrame1)
         depthFrame1 = spatialFilter.process(depthFrame1)
