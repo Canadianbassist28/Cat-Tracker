@@ -19,7 +19,7 @@ class realsenseBackbone():                                                      
     def setConfig(self):
         #sets the config setting for the cammera
         config = rs.config()
-        #config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)          #set res to 1280 720
+        #config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
         #config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
         #config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 250)
         #config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
@@ -58,7 +58,7 @@ class realsenseBackbone():                                                      
     def depthImageCV2(self, depthFrame):
         #inputs the depth frame
         #then apply color mappuing to the image into a numpyarray to be displayed in cv2
-        colorized = rs.colorizer(0)                                       #can change vaule for color map
+        colorized = rs.colorizer(3)                                       #can change vaule for color map
         colorized_depth = np.asanyarray(colorized.colorize(depthFrame).get_data())
         return colorized_depth
 
@@ -101,7 +101,7 @@ class realsenseBackbone():                                                      
         spatial.set_option(rs.option.filter_magnitude, 5)
         spatial.set_option(rs.option.filter_smooth_alpha, .25)
         spatial.set_option(rs.option.filter_smooth_delta, 50)
-        #spatial.set_option(rs.option.holes_fill, 3)
+        spatial.set_option(rs.option.holes_fill, 1)
         filtered_depth = spatial.process(frame)
         return filtered_depth
 
@@ -111,6 +111,7 @@ class realsenseBackbone():                                                      
         return holeFilling
 
     def threshold(self, frame, minDistance, maxDistance):
+        #apply threshold filter to a depth image from th emin distance to max distance to be viewed
         threshold_filter = rs.threshold_filter(minDistance, maxDistance)
         return threshold_filter.process(frame)
 
@@ -140,16 +141,17 @@ if __name__ == "__main__":
 
         # apply the filteras and threshold filter to the image
         #threshold = backbone.threshold(depth_frame, 2, 4)
-        depthFrame = backbone.threshold(depth_frame, 2.5, 5)
-        depthFrame = backbone.hole(depthFrame)
-        depthFrame = disparity.process(depthFrame) 
+       
+        depthFrame = backbone.hole(depth_frame)
+        #depthFrame = disparity.process(depth_frame) 
         depthFrame = backbone.spatial(depthFrame)
-
+        depthFrame = backbone.threshold(depthFrame, 2.5, 5)
         #deci = backbone.decimation(hole)
+
         depthImage = colorizer.colorize(depth_frame)
         depthImage = np.asanyarray(depthImage.get_data())
-        depthFrame = colorizer.colorize(depthFrame)
-        depthFrame = np.asanyarray(depthFrame.get_data())
+        depthFrame = backbone.depthImageCV2(depthFrame)
+     #   depthFrame = np.asanyarray(depthFrame.get_data())
 
 
         """
@@ -160,9 +162,59 @@ if __name__ == "__main__":
         low = np.array([110, 110, 110])
         high = np.array([150, 150, 150])
         mask = cv2.inRange(depthFrame, low, high)
-        tmp = cv2.bitwise_and(depthImage, color_image, mask = mask)   #calculates the bitwise conjunction of two array
-        cnts,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        #tmp = cv2.bitwise_and(depthImage, color_image, mask = mask)   #calculates the bitwise conjunction of two array
+        cnts,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cv2.drawContours(color_image, cnts,-1, [0,255,0], 2)
+        #to see the image print(cnt) to see countor pixel point 
+        
+        
+#        count = 0
+#        for i in cnts:# goes trhough all the countours countour number 
+#            for j in i:# goes through a for loop through all of i
+#                if (count % 154564 == 0):
+#                    x = j[0][0]
+#                    y = j[0][1]
+#                    print(backbone.threePoint(x, y))#prints the all of the piexl of each countor 
+#                count = count + 1
+                #make preset sequence of items to get the position from for each contour
+                #returnuing an array.
+
+
+
+        #number of contours can be from 2 to 1000
+        #number of cordinates from 1-2000
+        #total number of contours
+        contour = np.size(cnts)
+        #determine how much to increment throught the contour array based on the total number of contours
+        if (contour <= 5):
+           contourinc = 1
+        else:
+            #if there more than 5. Determine the increment to vist 5 countorus evenly
+            #round to nearest integer
+            contourinc = int(round(contour/6))
+        
+        contourindex = 0
+        while (contourindex < contour):
+            if (contourindex < contour):
+                cordinate = np.size(cnts[contourindex])   #num cordinates
+            if (cordinate <= 5):
+                cordinateinc = 1
+            else:
+                cordinateinc = int(round(cordinate/5))
+                cordinateindex = 0
+            while (cordinateindex < cordinate):
+                x = cnts[contourindex][0]
+                y = cnts[contourindex][1]
+                cordinateindex = (cordinateindex + cordinateinc + 1)
+                print(backbone.threePoint(x, y))
+
+            contourindex = (contourindex + contourinc)
+
+   #     for i in cnts:
+   #         x = i[0][0]
+   #         y = i[0][0]
+       # print(contourinc)
+
 
 
         #get the size of the iamge
@@ -173,14 +225,14 @@ if __name__ == "__main__":
 
         # Show images
         cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-        res = np.hstack((tmp, color_image))
+        res = np.hstack((depthFrame, color_image))
         cv2.imshow('RealSense', res)
         cv2.waitKey(1)
 
         #end the program when the windows is closed
         if (cv2.waitKey(1) & 0xFF == ord('q')):
             cv2.destroyAllWindows()
-            break;
+            break
 
 
 pipeline.stop()
