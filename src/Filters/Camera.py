@@ -184,7 +184,7 @@ if __name__ == "__main__":
         #number of contours can be from 2 to 1000
         #number of cordinates from 1-2000
         #total number of contours
-        contour = np.size(cnts)
+        contour = len(cnts)
         #determine how much to increment throught the contour array based on the total number of contours
         if (contour <= 5):
            contourinc = 1
@@ -195,17 +195,16 @@ if __name__ == "__main__":
         
         contourindex = 0
         while (contourindex < contour):
-            if (contourindex < contour):
-                cordinate = np.size(cnts[contourindex])   #num cordinates
+            cordinate = np.size(cnts[contourindex])   #num cordinates
             if (cordinate <= 5):
                 cordinateinc = 1
             else:
                 cordinateinc = int(round(cordinate/5))
-                cordinateindex = 0
+            cordinateindex = 0
             while (cordinateindex < cordinate):
-                x = cnts[contourindex][0]
-                y = cnts[contourindex][1]
-                cordinateindex = (cordinateindex + cordinateinc + 1)
+                x = cnts[contourindex][contourindex]
+                y = cnts[contourindex][contourindex]
+                cordinateindex = (cordinateindex + cordinateinc)
                 print(backbone.threePoint(x, y))
 
             contourindex = (contourindex + contourinc)
