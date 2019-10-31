@@ -14,7 +14,7 @@ cfg = rs.config()
 #cfg.enable_stream(rs.stream.gyro)
 #cfg.enable_stream(rs.stream.color, 640,480, rs.format.bgr8, 60)
 #cfg.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 60) #reads form sensor
-cfg.enable_device_from_file("sample.bag", True)
+cfg.enable_device_from_file("sample2.bag", False)
 
 profile = pipeline.start(cfg)
 
@@ -42,40 +42,42 @@ try:
             timeStamp = frames.get_timestamp() / 1000
         except:
             break
+        #get data
         motion.get_data(frames, timeStamp)
-
         depthFrame = frames.get_depth_frame()
 
+        #apply rs filters
         depthFrame1 = thresholdFilter.process(depthFrame)
         depthFrame1 = disparity.process(depthFrame1)
         depthFrame1 = spatialFilter.process(depthFrame1)
         depthFrame1 = colorizer.colorize(depthFrame1)
 
+        #rs frames to cv2 imgs
         colorImg = np.asanyarray(frames.get_color_frame().get_data())
         tmp = np.asanyarray(depthFrame1.get_data())
-
         depthFrame = colorizer.colorize(depthFrame)
         depthFrame = np.asanyarray(depthFrame.get_data())
 
+        #isolate section of image that are a set distance
         low = np.array([120, 120, 120])
         high = np.array([150, 150, 150])
         mask = cv2.inRange(tmp, low, high)
-        tmp = cv2.GaussianBlur(tmp,(7,7),1)
 
         cnts,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        cv2.drawContours(colorImg, cnts,-1, [0,255,0], 2, cv2.LINE_AA)
+        cv2.drawContours(colorImg, cnts,-1, [0,255,0], 2, cv2.LINE_8)
+
 
         mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
         colorImg = cv2.cvtColor(colorImg, cv2.COLOR_RGB2BGR)
         
-        FPS = "{:.2f}".format(1 / (timer() - start))
+        FPS = "{:.2f} ({:.2f},{:.2f},{:.2f})".format(1 / (timer() - start), motion.position[0], motion.position[1], motion.position[2])
         cv2.putText(colorImg, FPS, (10,15), cv2.FONT_HERSHEY_SIMPLEX, .3, (0,0,0), 1, cv2.LINE_AA)
 
         cv2.namedWindow('RealSenseSpatial', cv2.WINDOW_AUTOSIZE)
         res = np.hstack((mask, colorImg))
         cv2.imshow('RealSenseSpatial', res)
         
-        plot.append(motion.angle)
+        plot.append(motion.position)
         #XplotData.append(motion.position[0])
         #YplotData.append(motion.position[2])
 

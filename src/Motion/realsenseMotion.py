@@ -39,7 +39,7 @@ class realsenseMotion(object):
         self.gyroBufSize = 3
 
         self.isCalibrated = False
-        self.caliBufSize = 500
+        self.caliBufSize = 750
 
         if not runCalibration:
             self.gyroBias = (.00079, -.00050, -.0005)
