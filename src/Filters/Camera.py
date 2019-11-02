@@ -163,7 +163,7 @@ if __name__ == "__main__":
         high = np.array([150, 150, 150])
         mask = cv2.inRange(depthFrame, low, high)
         #tmp = cv2.bitwise_and(depthImage, color_image, mask = mask)   #calculates the bitwise conjunction of two array
-        cnts,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cnts,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         cv2.drawContours(color_image, cnts,-1, [0,255,0], 2)
         #to see the image print(cnt) to see countor pixel point 
         
@@ -179,40 +179,56 @@ if __name__ == "__main__":
                 #make preset sequence of items to get the position from for each contour
                 #returnuing an array.
 
-
+        #contours are stored in an aray of array of array of array
 
         #number of contours can be from 2 to 1000
         #number of cordinates from 1-2000
         #total number of contours
         contour = len(cnts)
         #determine how much to increment throught the contour array based on the total number of contours
-        if (contour <= 5):
+        if (contour < 5):
            contourinc = 1
         else:
             #if there more than 5. Determine the increment to vist 5 countorus evenly
             #round to nearest integer
-            contourinc = int(round(contour/6))
+            contourinc = int(round(contour/5))
         
         contourindex = 0
-        while (contourindex < contour):
-            cordinate = np.size(cnts[contourindex])   #num cordinates
-            if (cordinate <= 5):
-                cordinateinc = 1
-            else:
-                cordinateinc = int(round(cordinate/5))
-            cordinateindex = 0
-            while (cordinateindex < cordinate):
-                x = cnts[contourindex][contourindex]
-                y = cnts[contourindex][contourindex]
-                cordinateindex = (cordinateindex + cordinateinc)
-                print(backbone.threePoint(x, y))
+        size = len(cnts[0][0][0])
+        size2 = np.size(cnts[0][0][0][0])
+        #print (size, size2, cnts[0][0][0][0])                 
+        #print (cnts[0][0][0])
+        #print ("asd")
 
-            contourindex = (contourindex + contourinc)
+        #while (contourindex < contour):
+        #    cordinate = len(cnts[contourindex])   #num cordinates
+        #    if (cordinate < 5):
+        #        cordinateinc = 1
+        #    else:
+        #        cordinateinc = int(round(cordinate/5))
+        #    cordinateindex = 0
+        #    while (cordinateindex < cordinate and contourindex < contour ):
+        #        if(cordinateindex < cordinate):
+        #            position = cnts[contourindex][contourindex][0]
+        #            x = position[0]
+        #            y = position[1]
+        #            cordinateindex = (cordinateindex + cordinateinc)
+        #            print(backbone.threePoint(x, y))
 
-   #     for i in cnts:
-   #         x = i[0][0]
-   #         y = i[0][0]
-       # print(contourinc)
+        #    contourindex = (contourindex + contourinc)
+        i = 0
+        for i in cnts:
+            #for j in i:
+            j = 0
+            for j in i:
+                k = 0
+                for k in j:
+                    #print (k)
+                    x = k[0]
+                    y = k[1]
+                    print(x,y)
+
+        #print ("aijojdwioajio")
 
 
 
