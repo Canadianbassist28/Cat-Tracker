@@ -217,16 +217,24 @@ if __name__ == "__main__":
 
         #    contourindex = (contourindex + contourinc)
         i = 0
+        count1 = 0
         for i in cnts:
-            #for j in i:
-            j = 0
-            for j in i:
-                k = 0
-                for k in j:
-                    #print (k)
-                    x = k[0]
-                    y = k[1]
-                    print(x,y)
+            count2 = 0
+            if (count1 % 50 == 0):
+                j = 0
+                for j in i:
+                    count3 = 0
+                    if (count2%50 == 0):
+                        k = 0
+                        for k in j:
+                            #print (k)
+                            if(count3 % 50 == 0):
+                                x = k[0]
+                                y = k[1]
+                                print(x,y)
+                        count3 = count3+1
+                    count2 = count2+1
+        cont1 = count1 + 1
 
         #print ("aijojdwioajio")
 
