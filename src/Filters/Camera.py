@@ -186,52 +186,52 @@ if __name__ == "__main__":
         #total number of contours
         contour = len(cnts)
         #determine how much to increment throught the contour array based on the total number of contours
-        if (contour < 5):
-           contourinc = 1
-        else:
-            #if there more than 5. Determine the increment to vist 5 countorus evenly
-            #round to nearest integer
-            contourinc = int(round(contour/5))
+                                                                            #if (contour < 5):
+                                                                            #   contourinc = 1
+                                                                            #else:
+                                                                            #    #if there more than 5. Determine the increment to vist 5 countorus evenly
+                                                                            #    #round to nearest integer
+                                                                            #    contourinc = int(round(contour/5))
         
-        contourindex = 0
-        size = len(cnts[0][0][0])
-        size2 = np.size(cnts[0][0][0][0])
-        #print (size, size2, cnts[0][0][0][0])                 
-        #print (cnts[0][0][0])
-        #print ("asd")
+                                                                            #contourindex = 0
+                                                                            #size = len(cnts[0][0][0])
+                                                                            #size2 = np.size(cnts[0][0][0][0])
+                                                                            ##print (size, size2, cnts[0][0][0][0])                 
+                                                                            ##print (cnts[0][0][0])
+                                                                            ##print ("asd")
 
-        #while (contourindex < contour):
-        #    cordinate = len(cnts[contourindex])   #num cordinates
-        #    if (cordinate < 5):
-        #        cordinateinc = 1
-        #    else:
-        #        cordinateinc = int(round(cordinate/5))
-        #    cordinateindex = 0
-        #    while (cordinateindex < cordinate and contourindex < contour ):
-        #        if(cordinateindex < cordinate):
-        #            position = cnts[contourindex][contourindex][0]
-        #            x = position[0]
-        #            y = position[1]
-        #            cordinateindex = (cordinateindex + cordinateinc)
-        #            print(backbone.threePoint(x, y))
+                                                                            ##while (contourindex < contour):
+                                                                            ##    cordinate = len(cnts[contourindex])   #num cordinates
+                                                                            ##    if (cordinate < 5):
+                                                                            ##        cordinateinc = 1
+                                                                            ##    else:
+                                                                            ##        cordinateinc = int(round(cordinate/5))
+                                                                            ##    cordinateindex = 0
+                                                                            ##    while (cordinateindex < cordinate and contourindex < contour ):
+                                                                            ##        if(cordinateindex < cordinate):
+                                                                            ##            position = cnts[contourindex][contourindex][0]
+                                                                            ##            x = position[0]
+                                                                            ##            y = position[1]
+                                                                            ##            cordinateindex = (cordinateindex + cordinateinc)
+                                                                            ##            print(backbone.threePoint(x, y))
 
-        #    contourindex = (contourindex + contourinc)
+                                                                            ##    contourindex = (contourindex + contourinc)
         i = 0
         count1 = 0
         for i in cnts:
             count2 = 0
-            if (count1 % 50 == 0):
+            if (count1 % 800000000 == 0):
                 j = 0
                 for j in i:
                     count3 = 0
-                    if (count2%50 == 0):
+                    if (count2% 10000000 == 0):
                         k = 0
                         for k in j:
                             #print (k)
-                            if(count3 % 50 == 0):
+                            if(count3 % 100000 == 0):
                                 x = k[0]
                                 y = k[1]
-                                print(x,y)
+                                print(backbone.threePoint(x, y))
                         count3 = count3+1
                     count2 = count2+1
         cont1 = count1 + 1
