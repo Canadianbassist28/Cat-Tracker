@@ -62,13 +62,20 @@ class realsenseBackbone():                                                      
         colorized_depth = np.asanyarray(colorized.colorize(depthFrame).get_data())
         return colorized_depth
 
+
     """
     distance and 3d point realtive to the cammera functions
     """
 
     def distancePixel(self,depthFrame, x, y):
+        """
         #takes in a depth frame form the camera and cordinates of the pixel 
-        #from where the depth is wanted. returns the depth in meters
+        #from where the depth is wanted.
+        @param depthFrame isa depth frame form the cammera without any filters applied.
+        @param x is the x coridinate of the pixel
+        @param y is the y cordinate of the pixel
+        @param deproject retrun the depth in meters
+        """
         distance = depthFrame.get_distance(x, y)
         return distance
 
@@ -77,7 +84,7 @@ class realsenseBackbone():                                                      
         Determines the realtive 3D position of the cordinate from the pesepctive of the cammera.
         @param x coordinate of the pixel
         @param y coordinate of the pixel
-        @param depth_frame retrived by the cammera to get the distance at the pixel
+        @param depth_frame retrived by the cammera to get the distance at the pixel must have no filters applied
         @retrun returns the relative postiton
         """
         depth_sensor = self.profile.get_device().first_depth_sensor()
@@ -87,29 +94,36 @@ class realsenseBackbone():                                                      
         deproject = rs.rs2_deproject_pixel_to_point( depth_intrins,[320, 240], depth)
         return deproject
 
-    def point3DContour(self, cnts):
+    def point3DContour(self, cnts, depth_frame):
         """
         Determines the 3d point of portions of th econtours no set point that is being loked at.
         @param cnts array of all of the positinos of the contours applied to the color image
+        @param depth_frame must be a depth frame form cam without any filters applied
+        @retrun returns a list of 3Dpoint in the contours
         """
-         i = 0
+        threedpoint = [] #empty list to contain the 3dpoint of the contour
+        i = 0
         count1 = 0
         for i in cnts:
             count2 = 0
-            if (count1 % 80000000000 == 0):
+            if (count1 % 800000 == 0):
                 j = 0
                 for j in i:
                     count3 = 0
-                    if (count2% 800000000000 == 0):
+                    if (count2% 80000 == 0):
                         k = 0
                         for k in j:
-                            if(count3 % 800000000 == 0):
+                            if(count3 % 8000 == 0):
                                 x = k[0]
                                 y = k[1]
-                                print(backbone.threePoint(depth_frame,x, y))
+                                point = backbone.threePoint(depth_frame,x, y)
+                                threedpoint.append(point)
                         count3 = count3+1
                     count2 = count2+1
-        cont1 = count1 + 1
+            cont1 = count1 + 1
+        return threedpoint
+
+
 
     """
     Filters settings.
@@ -145,6 +159,27 @@ class realsenseBackbone():                                                      
         threshold_filter = rs.threshold_filter(minDistance, maxDistance)
         return threshold_filter.process(frame)
 
+    def disparity(self, frame):
+        """
+        converts the depth frame to disparity
+        """
+        disparity = rs.disparity_transform(True)
+        depthFrame = disparity.process(frame)
+        return depthFrame
+
+
+    def allFilters(self, depthFrame):
+        """
+        Takes in a deoth fraam and applys all the filters to excludes decimation for perfromance but can be uncommented
+        Depeneding on when you apply disparity it willl cause the threshold to not work apply after doing threshold
+        """
+        depthFrame = self.hole(depthFrame)
+        depthFrame = self.spatial(depthFrame)
+        depthFrame = self.threshold(depthFrame, 2.5, 5)
+        #depthFrame = self.decimation(depthFrame)
+        depthFrame = self.disparity(depthFrame) 
+        return depthFrame
+
     def contour(self, depthFrame, color_image):
         """
         Apply the contour to the collor image. by determining the threshold applied to the depth image and apply that outer edges to the color image as a contour
@@ -165,6 +200,9 @@ class realsenseBackbone():                                                      
         return cnts
 
 
+        
+
+
 
 
 
@@ -177,106 +215,28 @@ colorizer = rs.colorizer(3)
 if __name__ == "__main__":
     while True: #keeps going while it is reciving data
         
-        
+        #retrives the respactive frames required and sends them where needed.
         frames = backbone.getFrames() #get the frame from the camera
         timeStamp = frames.get_timestamp() / 1000
         motion.get_data(frames, timeStamp) 
         #print(motion.velocity)
         #retrives the depth image from camera
         depth_frame = backbone.getDepthFrame(frames)
-        # retrives color image a a np array
+        # retrives color image as a np array
         color_image = backbone.colorImageCV2(frames)
 
-        disparity = rs.disparity_transform(True)
 
-        # apply the filteras and threshold filter to the image
-        #depeneding on when you apply disparity it willl cause the threshold to not work apply after doing threshold
-       
-        depthFrame = backbone.hole(depth_frame)
-        #depthFrame = disparity.process(depthFrame) 
-        depthFrame = backbone.spatial(depthFrame)
-        depthFrame = backbone.threshold(depthFrame, 2.5, 5)
-        depthFrame = disparity.process(depthFrame) 
-        #depthFrame = backbone.decimation(depthFrame)
-
-        #depthImage = colorizer.colorize(depth_frame)
-        #depthImage = np.asanyarray(depthImage.get_data())
+        #apply all the filters and to the depth and converts it to np.array
+        depthFrame = backbone.allFilters(depth_frame)
         depthFrame = backbone.depthImageCV2(depthFrame)
 
         #apply the contour to the color image
         cnts = backbone.contour(depthFrame, color_image)
+        threeDpoints = backbone.point3DContour(cnts, depth_frame)
+        for i in threeDpoints:
+            print (i)
+
         
-        
-#        count = 0
-#        for i in cnts:# goes trhough all the countours countour number 
-#            for j in i:# goes through a for loop through all of i
-#                if (count % 154564 == 0):
-#                    x = j[0][0]
-#                    y = j[0][1]
-#                    print(backbone.threePoint(x, y))#prints the all of the piexl of each countor 
-#                count = count + 1
-                #make preset sequence of items to get the position from for each contour
-                #returnuing an array.
-
-        #contours are stored in an aray of array of array of array
-
-        #number of contours can be from 2 to 1000
-        #number of cordinates from 1-2000
-        #total number of contours
-        contour = len(cnts)
-        #determine how much to increment throught the contour array based on the total number of contours
-                                                                            #if (contour < 5):
-                                                                            #   contourinc = 1
-                                                                            #else:
-                                                                            #    #if there more than 5. Determine the increment to vist 5 countorus evenly
-                                                                            #    #round to nearest integer
-                                                                            #    contourinc = int(round(contour/5))
-        
-                                                                            #contourindex = 0
-                                                                            #size = len(cnts[0][0][0])
-                                                                            #size2 = np.size(cnts[0][0][0][0])
-                                                                            ##print (size, size2, cnts[0][0][0][0])                 
-                                                                            ##print (cnts[0][0][0])
-                                                                            ##print ("asd")
-
-                                                                            ##while (contourindex < contour):
-                                                                            ##    cordinate = len(cnts[contourindex])   #num cordinates
-                                                                            ##    if (cordinate < 5):
-                                                                            ##        cordinateinc = 1
-                                                                            ##    else:
-                                                                            ##        cordinateinc = int(round(cordinate/5))
-                                                                            ##    cordinateindex = 0
-                                                                            ##    while (cordinateindex < cordinate and contourindex < contour ):
-                                                                            ##        if(cordinateindex < cordinate):
-                                                                            ##            position = cnts[contourindex][contourindex][0]
-                                                                            ##            x = position[0]
-                                                                            ##            y = position[1]
-                                                                            ##            cordinateindex = (cordinateindex + cordinateinc)
-                                                                            ##            print(backbone.threePoint(x, y))
-
-                                                                            ##    contourindex = (contourindex + contourinc)
-        i = 0
-        count1 = 0
-        for i in cnts:
-            count2 = 0
-            if (count1 % 80000000000 == 0):
-                j = 0
-                for j in i:
-                    count3 = 0
-                    if (count2% 800000000000 == 0):
-                        k = 0
-                        for k in j:
-                            #print (k)
-                            if(count3 % 800000000 == 0):
-                                x = k[0]
-                                y = k[1]
-                                print(backbone.threePoint(depth_frame,x, y))
-                        count3 = count3+1
-                    count2 = count2+1
-        cont1 = count1 + 1
-
-        #print ("aijojdwioajio")
-
 
 
         #get the size of the iamge
