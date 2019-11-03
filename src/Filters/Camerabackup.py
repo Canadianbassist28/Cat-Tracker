@@ -103,6 +103,7 @@ class realsenseBackbone():                                                      
                     if (count2% 800000000000 == 0):
                         k = 0
                         for k in j:
+                            #print (k)
                             if(count3 % 800000000 == 0):
                                 x = k[0]
                                 y = k[1]
