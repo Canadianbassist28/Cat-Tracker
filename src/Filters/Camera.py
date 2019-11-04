@@ -218,6 +218,9 @@ pipeline = backbone.getpipeline()
 #colorizer = rs.colorizer(3)
 outf = open("output.txt", "w")
 
+def fileOutput(cnts, outf):
+    outf.write(str(cnts))
+    return
 if __name__ == "__main__":
     while True: #keeps going while it is reciving data
         
@@ -241,7 +244,7 @@ if __name__ == "__main__":
         threeDpoints = backbone.point3DContour(cnts, depth_frame)
         for i in threeDpoints:
             #outf.write(i)
-            outf.write(str(i))
+            fileOutput(i, outf)
             #print(i, file=outf)
             #outf.write("\n")
         #    if(i[0] <= -.1):
