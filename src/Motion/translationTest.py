@@ -14,7 +14,7 @@ cfg = rs.config()
 #cfg.enable_stream(rs.stream.gyro)
 #cfg.enable_stream(rs.stream.color, 640,480, rs.format.bgr8, 60)
 #cfg.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 60) #reads form sensor
-cfg.enable_device_from_file("sample2.bag", False)
+cfg.enable_device_from_file("sample.bag", False)
 
 profile = pipeline.start(cfg)
 
@@ -28,14 +28,17 @@ print("starting stream...")
 colorizer = rs.colorizer(3)
 align_to = rs.stream.color
 align = rs.align(align_to)
-thresholdFilter = rs.threshold_filter(2.5,5.0)
 spatialFilter= rs.spatial_filter(.25, 50, 5, 1)
 disparity = rs.disparity_transform(True)
 kernel = np.ones((3,3),np.uint8)
+thresholdFilter = rs.threshold_filter(2.5, 5)
+
 try:
     while 1:
 
         start = timer()
+        #x = 3 * np.sin(2*start) + 3
+
         try:
             frames = pipeline.wait_for_frames()
             frames = align.process(frames)
@@ -77,9 +80,11 @@ try:
         res = np.hstack((mask, colorImg))
         cv2.imshow('RealSenseSpatial', res)
         
-        plot.append(motion.position)
-        #XplotData.append(motion.position[0])
-        #YplotData.append(motion.position[2])
+        #plot.append(motion.linearAccel)
+        #plot.append(x)
+        #if motion.isCalibrated:
+        #    YplotData.append(motion.position[0])
+        #    YplotData.append(motion.position[2])
 
 
         if (cv2.waitKey(1) & 0xFF == ord('q')):
