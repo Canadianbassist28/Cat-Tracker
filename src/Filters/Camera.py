@@ -91,7 +91,7 @@ class realsenseBackbone():                                                      
         depth_scale = depth_sensor.get_depth_scale()
         depth_intrins = self.profile.get_stream(rs.stream.depth).as_video_stream_profile().get_intrinsics()
         depth = self.distancePixel(depth_frame,x,y)
-        deproject = rs.rs2_deproject_pixel_to_point( depth_intrins,[320, 240], depth)
+        deproject = rs.rs2_deproject_pixel_to_point( depth_intrins,[x, y], depth)
         return deproject
 
     def point3DContour(self, cnts, depth_frame):
