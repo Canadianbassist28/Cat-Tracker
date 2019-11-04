@@ -1,4 +1,5 @@
 import pyrealsense2 as rs
+import math as math
 import numpy as np
 from timeit import default_timer as timer
 
@@ -32,20 +33,24 @@ class realsenseMap(object):
     """-----this function will print the data type thats associated  """
 
     def load (self):
-        while(is on)
+        #this function will take information from dylan's piece of the project and load it into a tuple to gain real time information.
+        #this will be useful for mapping because the we can use it to map using this tuple
+        while(is rs.playing)
             Motion.self.position=(self.xaxis, self.yaxis, self.zaxis)
             self.data[position, angle]
 
    def print(self.data)
+   #this function will be able to print the map to a file
     print self.xaxis
     print self.yaxis
     print self.zaxis
     print self.axis
 
-   def turn_left(self.data)
+   def distance(self.data)
+   #this function will be able to calculate the distance from the initial point and create a tuple of distance from any point while the program is running 
+    distance= (math.sqrt((self.xaxis-init.self.xaxis)^2), math.sqrt((self.yaxis-init.self.yaxis)^2), math.sqrt((self.zaxis-init.self.zaxis)^2))
     
-
-"""I will also need function called distance which 
-        will calulate distance from a wall
-        """
+    def isTurn(self.data)
+    #this function will be able to decide if the camera has turned using the gyroscope
+    
         
