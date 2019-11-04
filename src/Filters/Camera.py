@@ -3,6 +3,7 @@ import numpy as np
 from time import clock as timer
 import cv2
 from src.Motion.realsenseMotion import realsenseMotion
+import turtle
 
 
 class realsenseBackbone():                                                                                                                            #use sefl to access member funciton and variables 
@@ -19,7 +20,7 @@ class realsenseBackbone():                                                      
     def setConfig(self):
         #sets the config setting for the cammera
         config = rs.config()
-        #config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
+        #config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
         #config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
         #config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 250)
         #config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
@@ -106,21 +107,21 @@ class realsenseBackbone():                                                      
         count1 = 0
         for i in cnts:
             count2 = 0
-            if (count1 % 800000 == 0):
+            if (count1 % 800000000 == 0):
                 j = 0
                 for j in i:
                     count3 = 0
-                    if (count2% 80000 == 0):
+                    if (count2% 800000000 == 0):
                         k = 0
                         for k in j:
-                            if(count3 % 8000 == 0):
+                            if(count3 % 80000000 == 0):
                                 x = k[0]
                                 y = k[1]
                                 point = backbone.threePoint(depth_frame,x, y)
                                 threedpoint.append(point)
                         count3 = count3+1
                     count2 = count2+1
-            cont1 = count1 + 1
+                cont1 = count1 + 1
         return threedpoint
 
 
@@ -177,7 +178,8 @@ class realsenseBackbone():                                                      
         depthFrame = self.spatial(depthFrame)
         depthFrame = self.threshold(depthFrame, 2.5, 5)
         #depthFrame = self.decimation(depthFrame)
-        depthFrame = self.disparity(depthFrame) 
+        depthFrame = self.disparity(depthFrame)
+        #depthFrame = self.threshold(depthFrame, 2.5, 5)
         return depthFrame
 
     def contour(self, depthFrame, color_image):
@@ -208,9 +210,11 @@ class realsenseBackbone():                                                      
 
 
 backbone = realsenseBackbone()
-motion = realsenseMotion()
+#motion = realsenseMotion()
 pipeline = backbone.getpipeline()
-colorizer = rs.colorizer(3)
+turtle.screensize(11800, 99010)
+dist = turtle.Turtle()
+#colorizer = rs.colorizer(3)
 
 if __name__ == "__main__":
     while True: #keeps going while it is reciving data
@@ -218,7 +222,7 @@ if __name__ == "__main__":
         #retrives the respactive frames required and sends them where needed.
         frames = backbone.getFrames() #get the frame from the camera
         timeStamp = frames.get_timestamp() / 1000
-        motion.get_data(frames, timeStamp) 
+        #motion.get_data(frames, timeStamp) 
         #print(motion.velocity)
         #retrives the depth image from camera
         depth_frame = backbone.getDepthFrame(frames)
@@ -234,6 +238,11 @@ if __name__ == "__main__":
         cnts = backbone.contour(depthFrame, color_image)
         threeDpoints = backbone.point3DContour(cnts, depth_frame)
         for i in threeDpoints:
+            if(i[0] <= -.1):
+                dist.left(90)
+            elif(i[0]>= .1):
+                dist.right(90)
+            dist.forward(i[2])
             print (i)
 
         
@@ -258,6 +267,7 @@ if __name__ == "__main__":
 
 
 pipeline.stop()
+turtle.done
 
 
 #work on countor going through the list thats made and processing increments of the pixels and return a 3d point look at getting th contour smother 
