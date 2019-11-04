@@ -53,4 +53,9 @@ class realsenseMap(object):
     def isTurn(self.data)
     #this function will be able to decide if the camera has turned using the gyroscope
     
+    def turnLeft(self.data)
+    #this function will identify a left turn
+
+    def turnRight(self.data)
+    #this function will display a right turn
         
