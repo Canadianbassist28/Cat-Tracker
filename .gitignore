@@ -2,3 +2,4 @@
 *.vs
 Kevpythexamp.MD
 *.bag
+*.cpython*

@@ -39,7 +39,7 @@ class realsenseMotion(object):
         self.gyroBufSize = 3
 
         self.isCalibrated = False
-        self.caliBufSize = 500
+        self.caliBufSize = 750
 
         if not runCalibration:
             self.gyroBias = (.00079, -.00050, -.0005)
@@ -89,20 +89,23 @@ class realsenseMotion(object):
 
         #-------calculate linearAccel by subtracting gravity component from accel
 
-        R = self.__getRotationMatrix()
-        g = np.array([[0], [9.81], [0]])
-        gravityVector = np.transpose(np.matmul(R, g))[0]
-        self.linearAccel = tuple(np.add(np.array(self.accel), gravityVector))
+        R_BI = self.getRotationMatrix()
+        R_IB = np.transpose(R_BI)
+        g = np.array([0 ,9.81,0])
+        inertalAccel = np.matmul(np.array(self.accel), R_IB)
+        #gravityVector = np.transpose(np.matmul(R, g))[0]
+        self.linearAccel = tuple(np.add(inertalAccel, g))
 
         #-------integrate linearAccel(m/s^2) to get velocity(m/s)
 
         tmp = self.__integrate(self.linearAccel, self.lastLinearAccel, timeNow)
-        tmp = np.matmul(np.array(tmp), R)
+        tmp = np.matmul(np.array(tmp), R_BI)
         self.velocity = tuple(map(sum, zip(self.velocity, tmp)))
 
         #-------integrate velocity(m/s) to get position(m)
         
         tmp = self.__integrate(self.velocity, self.lastVelocity, timeNow)
+        #tmp = np.matmul(np.array(tmp), R)
         self.position = tuple(map(sum, zip(self.position, tmp)))
 
         #set last time and increment tick !!!(must be done at end of this function)!!!
@@ -133,7 +136,7 @@ class realsenseMotion(object):
         return ((xrect + xtri), (yrect + ytri), (zrect + ztri))
 
 
-    def __getRotationMatrix(self):
+    def getRotationMatrix(self):
         """
         From the current angle in eulars angles, computes the rotation matrix 
         @return the rotation matrix, a np.array matrix
