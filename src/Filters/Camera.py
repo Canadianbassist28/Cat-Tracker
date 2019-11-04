@@ -20,12 +20,12 @@ class realsenseBackbone():                                                      
     def setConfig(self):
         #sets the config setting for the cammera
         config = rs.config()
-        config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+        #config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+        #config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
         #config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 250)
         #config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
 
-        #config.enable_device_from_file("sample.bag")    #can do ,false to not repeat
+        config.enable_device_from_file("sample.bag")    #can do ,false to not repeat
         return config
 
     def getpipeline(self):
@@ -216,6 +216,7 @@ pipeline = backbone.getpipeline()
 #turtle.screensize(11800, 99010)
 #dist = turtle.Turtle()
 #colorizer = rs.colorizer(3)
+outf = open("output.txt", "w")
 
 if __name__ == "__main__":
     while True: #keeps going while it is reciving data
@@ -239,12 +240,15 @@ if __name__ == "__main__":
         cnts = backbone.contour(depthFrame, color_image)
         threeDpoints = backbone.point3DContour(cnts, depth_frame)
         for i in threeDpoints:
+            #outf.write(i)
+            outf.write(str(i))
+            #print(i, file=outf)
+            #outf.write("\n")
         #    if(i[0] <= -.1):
         #        dist.left(90)
         #    elif(i[0]>= .1):
         #        dist.right(90)
         #    dist.forward(i[2])
-            print (len(i))
 
         
 
@@ -265,7 +269,7 @@ if __name__ == "__main__":
             cv2.destroyAllWindows()
             break
 
-
+outf.close()
 pipeline.stop()
 turtle.done
 
