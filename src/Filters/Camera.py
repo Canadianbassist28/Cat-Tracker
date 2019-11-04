@@ -20,12 +20,12 @@ class realsenseBackbone():                                                      
     def setConfig(self):
         #sets the config setting for the cammera
         config = rs.config()
-        #config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-        #config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+        config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
         #config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 250)
         #config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
 
-        config.enable_device_from_file("sample.bag")    #can do ,false to not repeat
+        #config.enable_device_from_file("sample.bag")    #can do ,false to not repeat
         return config
 
     def getpipeline(self):
@@ -107,21 +107,22 @@ class realsenseBackbone():                                                      
         count1 = 0
         for i in cnts:
             count2 = 0
-            if (count1 % 800000000 == 0):
-                j = 0
-                for j in i:
-                    count3 = 0
-                    if (count2% 800000000 == 0):
-                        k = 0
-                        for k in j:
-                            if(count3 % 80000000 == 0):
-                                x = k[0]
-                                y = k[1]
-                                point = backbone.threePoint(depth_frame,x, y)
-                                threedpoint.append(point)
-                        count3 = count3+1
-                    count2 = count2+1
-                cont1 = count1 + 1
+            #if (count1 % 800000 == 0):
+            j = 0
+            for j in i:
+                count3 = 0
+                #if (count2% 8000000 == 0):
+                k = 0
+                for k in j:
+                        #if(count3 % 800000 == 0):
+                        x = k[0]
+                        y = k[1]
+                        point = backbone.threePoint(depth_frame,x, y)
+                        threedpoint.append(point)
+                    #count3 = count3+1
+                count2 = count2+1
+            cont1 = count1 + 1
+        print (len(threedpoint))
         return threedpoint
 
 
@@ -174,12 +175,12 @@ class realsenseBackbone():                                                      
         Takes in a deoth fraam and applys all the filters to excludes decimation for perfromance but can be uncommented
         Depeneding on when you apply disparity it willl cause the threshold to not work apply after doing threshold
         """
-        depthFrame = self.hole(depthFrame)
-        depthFrame = self.spatial(depthFrame)
+        #depthFrame = self.hole(depthFrame)
         depthFrame = self.threshold(depthFrame, 2.5, 5)
-        #depthFrame = self.decimation(depthFrame)
         depthFrame = self.disparity(depthFrame)
-        #depthFrame = self.threshold(depthFrame, 2.5, 5)
+        depthFrame = self.spatial(depthFrame)
+        #depthFrame = self.decimation(depthFrame)
+
         return depthFrame
 
     def contour(self, depthFrame, color_image):
@@ -212,8 +213,8 @@ class realsenseBackbone():                                                      
 backbone = realsenseBackbone()
 #motion = realsenseMotion()
 pipeline = backbone.getpipeline()
-turtle.screensize(11800, 99010)
-dist = turtle.Turtle()
+#turtle.screensize(11800, 99010)
+#dist = turtle.Turtle()
 #colorizer = rs.colorizer(3)
 
 if __name__ == "__main__":
@@ -238,12 +239,12 @@ if __name__ == "__main__":
         cnts = backbone.contour(depthFrame, color_image)
         threeDpoints = backbone.point3DContour(cnts, depth_frame)
         for i in threeDpoints:
-            if(i[0] <= -.1):
-                dist.left(90)
-            elif(i[0]>= .1):
-                dist.right(90)
-            dist.forward(i[2])
-            print (i)
+        #    if(i[0] <= -.1):
+        #        dist.left(90)
+        #    elif(i[0]>= .1):
+        #        dist.right(90)
+        #    dist.forward(i[2])
+            print (len(i))
 
         
 
@@ -258,7 +259,6 @@ if __name__ == "__main__":
         cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
         res = np.hstack((depthFrame, color_image))
         cv2.imshow('RealSense', res)
-        cv2.waitKey(1)
 
         #end the program when the windows is closed
         if (cv2.waitKey(1) & 0xFF == ord('q')):
