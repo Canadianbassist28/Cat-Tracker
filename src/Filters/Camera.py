@@ -243,8 +243,7 @@ if __name__ == "__main__":
             elif(i[0]>= .1):
                 dist.right(90)
             dist.forward(i[2])
-            f = open(output.txt,'w')
-            print(i, file=f)
+            print (i)
 
         
 
