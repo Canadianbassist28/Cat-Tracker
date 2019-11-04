@@ -133,7 +133,7 @@ class realsenseMotion(object):
         return ((xrect + xtri), (yrect + ytri), (zrect + ztri))
 
 
-    def __getRotationMatrix(self):
+    def getRotationMatrix(self):
         """
         From the current angle in eulars angles, computes the rotation matrix 
         @return the rotation matrix, a np.array matrix
