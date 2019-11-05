@@ -13,19 +13,20 @@ class realsenseBackbone():                                                      
     def __init__(self):
         #self.frames = rs.frames
         self.pipeline = rs.pipeline()
-        self.config = self.setConfig() #use
+        self.config = self.setConfig("sample.bag") #use
         self.profile = self.pipeline.start(self.config)
       #  self.frames = self.getFrames()
         
-    def setConfig(self):
+    def setConfig(self, bagfile = ""):
         #sets the config setting for the cammera
         config = rs.config()
-        config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-        #config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 250)
-        #config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
-
-        #config.enable_device_from_file("sample.bag")    #can do ,false to not repeat
+        if len(bagfile) == 0:
+            config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+            config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+            config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 250)
+            config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
+        else:
+            config.enable_device_from_file("sample.bag")    #can do ,false to not repeat
         return config
 
     def getpipeline(self):
@@ -95,6 +96,7 @@ class realsenseBackbone():                                                      
         deproject = rs.rs2_deproject_pixel_to_point( depth_intrins,[x, y], depth)
         return deproject
 
+    
     def point3DContour(self, cnts, depth_frame):
         """
         Determines the 3d point of portions of th econtours no set point that is being loked at.
@@ -107,23 +109,37 @@ class realsenseBackbone():                                                      
         count1 = 0
         for i in cnts:
             count2 = 0
-            #if (count1 % 800000 == 0):
-            j = 0
-            for j in i:
-                count3 = 0
-                #if (count2% 8000000 == 0):
-                k = 0
-                for k in j:
-                        #if(count3 % 800000 == 0):
-                        x = k[0]
-                        y = k[1]
-                        point = backbone.threePoint(depth_frame,x, y)
-                        threedpoint.append(point)
-                    #count3 = count3+1
-                count2 = count2+1
-            cont1 = count1 + 1
-        print (len(threedpoint))
+            if (count1 % 800000 == 0):
+                j = 0
+                for j in i:
+                    count3 = 0
+                    if (count2% 8000000 == 0):
+                        k = 0
+                        for k in j:
+                            if(count3 % 800000 == 0):
+                                x = k[0]
+                                y = k[1]
+                            point = backbone.threePoint(depth_frame,x, y)
+                            threedpoint.append(point)
+                        count3 = count3+1
+                    count2 = count2+1
+                cont1 = count1 + 1
+        #print (len(threedpoint))
         return threedpoint
+                                                                                                            #work on threading 
+
+    """
+    Writeing to a file
+    """
+    def openfile(self, name):
+        outf = open(name, "w")
+        return outf
+
+    def fileOutput(self,cnts, outf):
+        for i in cnts:
+            outf.write(str(i))
+            outf.write("\n")
+        return outf
 
 
 
@@ -211,11 +227,11 @@ class realsenseBackbone():                                                      
 
 
 backbone = realsenseBackbone()
-#motion = realsenseMotion()
+motion = realsenseMotion()
 pipeline = backbone.getpipeline()
 #turtle.screensize(11800, 99010)
 #dist = turtle.Turtle()
-#colorizer = rs.colorizer(3)
+outf = backbone.openfile("output.txt",)
 
 if __name__ == "__main__":
     while True: #keeps going while it is reciving data
@@ -223,8 +239,8 @@ if __name__ == "__main__":
         #retrives the respactive frames required and sends them where needed.
         frames = backbone.getFrames() #get the frame from the camera
         timeStamp = frames.get_timestamp() / 1000
-        #motion.get_data(frames, timeStamp) 
-        #print(motion.velocity)
+        motion.get_data(frames, timeStamp) 
+        print(motion.velocity)
         #retrives the depth image from camera
         depth_frame = backbone.getDepthFrame(frames)
         # retrives color image as a np array
@@ -238,22 +254,13 @@ if __name__ == "__main__":
         #apply the contour to the color image
         cnts = backbone.contour(depthFrame, color_image)
         threeDpoints = backbone.point3DContour(cnts, depth_frame)
-        for i in threeDpoints:
+        outf = backbone.fileOutput(threeDpoints, outf)
+        #for i in threeDpoints:
         #    if(i[0] <= -.1):
         #        dist.left(90)
         #    elif(i[0]>= .1):
         #        dist.right(90)
         #    dist.forward(i[2])
-            print (len(i))
-
-        
-
-
-        #get the size of the iamge
-        #dimensions = image1.shape
-        #print ("Image dimensions: ", dimensions)
-        #position = backbone.threePoint(500, 500)
-        #print(position)
 
         # Show images
         cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
@@ -265,7 +272,7 @@ if __name__ == "__main__":
             cv2.destroyAllWindows()
             break
 
-
+outf.close()
 pipeline.stop()
 turtle.done
 

@@ -69,7 +69,7 @@ try:
         high = np.array([150, 150, 150])
         mask = cv2.inRange(tmp, low, high)
 
-        cnts,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cnts, kjk = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cv2.drawContours(colorImg, cnts,-1, [0,255,0], 2, cv2.LINE_8)
 
         mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
