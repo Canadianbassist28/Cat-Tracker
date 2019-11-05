@@ -15,7 +15,7 @@ class realsenseBackbone():                                                      
     def __init__(self):
         #self.frames = rs.frames
         self.pipeline = rs.pipeline()
-        self.config = self.setConfig() #use
+        self.config = self.setConfig("sample.bag") #use
         self.profile = self.pipeline.start(self.config)
         self.threedpoint = []
       #  self.frames = self.getFrames()
@@ -29,7 +29,7 @@ class realsenseBackbone():                                                      
             config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 250)
             config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
         else:
-            config.enable_device_from_file("sample.bag",False)    #can do ,false to not repeat
+            config.enable_device_from_file("sample.bag",)    #can do ,false to not repeat
         return config
 
     def getpipeline(self):
