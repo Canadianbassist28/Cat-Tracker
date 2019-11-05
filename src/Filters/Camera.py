@@ -119,7 +119,7 @@ class realsenseBackbone():                                                      
                             if(count3 % 800000 == 0):
                                 x = k[0]
                                 y = k[1]
-                            point = backbone.threePoint(depth_frame,x, y)
+                                point = backbone.threePoint(depth_frame,x, y)
                             threedpoint.append(point)
                         count3 = count3+1
                     count2 = count2+1
