@@ -2,6 +2,8 @@ import pyrealsense2 as rs
 import numpy as np
 from time import clock as timer
 import cv2
+import threading
+import concurrent.futures
 from src.Motion.realsenseMotion import realsenseMotion
 import turtle
 
@@ -15,6 +17,7 @@ class realsenseBackbone():                                                      
         self.pipeline = rs.pipeline()
         self.config = self.setConfig("sample.bag") #use
         self.profile = self.pipeline.start(self.config)
+        self.threedpoint = []
       #  self.frames = self.getFrames()
         
     def setConfig(self, bagfile = ""):
@@ -96,36 +99,53 @@ class realsenseBackbone():                                                      
         deproject = rs.rs2_deproject_pixel_to_point( depth_intrins,[x, y], depth)
         return deproject
 
-    
-    def point3DContour(self, cnts, depth_frame):
+    def point3DContour(self,cnts,depth_frame):
+        """
+        apply threading to processs the lsit of points
+        may need to do a lock
+        send in a quue that can be addde on to or a list
+
+        get rid of first for loop and append the the list sent in
+        """
+        threads = list() #create a lsit of threads
+        self.threedpoint = [] #reset the list to be empty
+        for i in cnts:
+            thread = threading.Thread(target = self.process3DContour, args = (i, depth_frame))
+            threads.append(thread)# add the thread to the list
+            thread.start() #starst the tread.
+
+        for j in threads:
+            j.join() #join the thread causes a threa to wait till its finished
+        return self.threedpoint
+
+    def process3DContour(self, cnts, depth_frame):
         """
         Determines the 3d point of portions of th econtours no set point that is being loked at.
         @param cnts array of all of the positinos of the contours applied to the color image
         @param depth_frame must be a depth frame form cam without any filters applied
         @retrun returns a list of 3Dpoint in the contours
         """
-        threedpoint = [] #empty list to contain the 3dpoint of the contour
-        i = 0
-        count1 = 0
-        for i in cnts:
-            count2 = 0
-            if (count1 % 800000 == 0):
-                j = 0
-                for j in i:
-                    count3 = 0
-                    if (count2% 8000000 == 0):
-                        k = 0
-                        for k in j:
-                            if(count3 % 800000 == 0):
-                                x = k[0]
-                                y = k[1]
-                            point = backbone.threePoint(depth_frame,x, y)
-                            threedpoint.append(point)
-                        count3 = count3+1
-                    count2 = count2+1
-                cont1 = count1 + 1
+        #i = 0
+        #count1 = 0
+        #for i in cnts:
+        count2 = 0
+        #if (count1 % 800000 == 0):
+        #    j = 0
+        for j in cnts:
+            count3 = 0
+            if (count2% 8 == 0):
+                k = 0
+                for k in j:
+                    if(count3 % 8 == 0):
+                        x = k[0]
+                        y = k[1]
+                    point = backbone.threePoint(depth_frame,x, y)
+                    self.threedpoint.append(point)
+                count3 = count3+1
+            count2 = count2+1
+                #cont1 = count1 + 1
         #print (len(threedpoint))
-        return threedpoint
+        #return threedpoint
                                                                                                             #work on threading 
 
     """
@@ -240,7 +260,7 @@ if __name__ == "__main__":
         frames = backbone.getFrames() #get the frame from the camera
         timeStamp = frames.get_timestamp() / 1000
         motion.get_data(frames, timeStamp) 
-        print(motion.velocity)
+       # print(motion.velocity)
         #retrives the depth image from camera
         depth_frame = backbone.getDepthFrame(frames)
         # retrives color image as a np array
@@ -278,4 +298,6 @@ turtle.done
 
 
 #work on countor going through the list thats made and processing increments of the pixels and return a 3d point look at getting th contour smother 
-#list of pixel pointes
+#list of pixel pointes indor atlas
+
+#look to aligning depth and color
