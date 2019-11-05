@@ -235,7 +235,7 @@ outf = backbone.openfile("output.txt",)
 
 if __name__ == "__main__":
     while True: #keeps going while it is reciving data
-        
+        start = timer()
         #retrives the respactive frames required and sends them where needed.
         frames = backbone.getFrames() #get the frame from the camera
         timeStamp = frames.get_timestamp() / 1000
@@ -263,6 +263,9 @@ if __name__ == "__main__":
         #    dist.forward(i[2])
 
         # Show images
+
+        FPS = "{:.2f} ({:.2f},{:.2f},{:.2f})".format(1 / (timer() - start), motion.position[0], motion.position[1], motion.position[2])
+        cv2.putText(color_image, FPS, (10,15), cv2.FONT_HERSHEY_SIMPLEX, .3, (0,0,0), 1, cv2.LINE_AA)
         cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
         res = np.hstack((depthFrame, color_image))
         cv2.imshow('RealSense', res)
