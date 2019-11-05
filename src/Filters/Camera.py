@@ -227,7 +227,7 @@ class realsenseBackbone():                                                      
 
 
 backbone = realsenseBackbone()
-#motion = realsenseMotion()
+motion = realsenseMotion()
 pipeline = backbone.getpipeline()
 #turtle.screensize(11800, 99010)
 #dist = turtle.Turtle()
@@ -239,8 +239,8 @@ if __name__ == "__main__":
         #retrives the respactive frames required and sends them where needed.
         frames = backbone.getFrames() #get the frame from the camera
         timeStamp = frames.get_timestamp() / 1000
-        #motion.get_data(frames, timeStamp) 
-        #print(motion.velocity)
+        motion.get_data(frames, timeStamp) 
+        print(motion.velocity)
         #retrives the depth image from camera
         depth_frame = backbone.getDepthFrame(frames)
         # retrives color image as a np array
