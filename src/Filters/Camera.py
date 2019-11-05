@@ -105,25 +105,25 @@ class realsenseBackbone():                                                      
         @retrun returns a list of 3Dpoint in the contours
         """
         threedpoint = [] #empty list to contain the 3dpoint of the contour
-        i = 0
-        count1 = 0
+        #i = 0
+        #count1 = 0
         for i in cnts:
-            count2 = 0
-            if (count1 % 800000 == 0):
-                j = 0
-                for j in i:
-                    count3 = 0
-                    if (count2% 8000000 == 0):
-                        k = 0
-                        for k in j:
-                            if(count3 % 800000 == 0):
-                                x = k[0]
-                                y = k[1]
-                                point = backbone.threePoint(depth_frame,x, y)
-                            threedpoint.append(point)
-                        count3 = count3+1
-                    count2 = count2+1
-                cont1 = count1 + 1
+            #count2 = 0
+            #if (count1 % 800000 == 0):
+            #j = 0
+            for j in i:
+                #count3 = 0
+                    #if (count2% 8000000 == 0):
+                #k = 0
+                for k in j:
+                            #if(count3 % 800000 == 0):
+                    x = k[0]
+                    y = k[1]
+                    point = backbone.threePoint(depth_frame,x, y)
+                    threedpoint.append(point)
+                    #count3 = count3+1
+                    #count2 = count2+1
+                #cont1 = count1 + 1
         #print (len(threedpoint))
         return threedpoint
                                                                                                             #work on threading 
