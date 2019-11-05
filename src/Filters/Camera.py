@@ -15,7 +15,7 @@ class realsenseBackbone():                                                      
     def __init__(self):
         #self.frames = rs.frames
         self.pipeline = rs.pipeline()
-        self.config = self.setConfig("sample.bag") #use
+        self.config = self.setConfig() #use
         self.profile = self.pipeline.start(self.config)
         self.threedpoint = []
       #  self.frames = self.getFrames()
@@ -125,6 +125,7 @@ class realsenseBackbone():                                                      
         @param depth_frame must be a depth frame form cam without any filters applied
         @retrun returns a list of 3Dpoint in the contours
         """
+        cout = 0;
         for j in cnts:
             k = 0
             for k in j:
@@ -244,6 +245,7 @@ if __name__ == "__main__":
     while True: #keeps going while it is reciving data
         
         #retrives the respactive frames required and sends them where needed.
+        start = timer()
         frames = backbone.getFrames() #get the frame from the camera
         timeStamp = frames.get_timestamp() / 1000
         motion.get_data(frames, timeStamp) 
@@ -268,6 +270,9 @@ if __name__ == "__main__":
         #    elif(i[0]>= .1):
         #        dist.right(90)
         #    dist.forward(i[2])
+
+        FPS = "{:.2f} ({:.2f},{:.2f},{:.2f})".format(1 / (timer() - start), motion.position[0], motion.position[1], motion.position[2])
+        cv2.putText(color_image, FPS, (10,15), cv2.FONT_HERSHEY_SIMPLEX, .3, (0,0,0), 1, cv2.LINE_AA)
 
         # Show images
         cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
