@@ -22,6 +22,9 @@
     <Compile Include="help.py" />
     <Compile Include="pointCloud.py" />
     <Compile Include="RealSense.py" />
+    <Compile Include="demo3.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\Filters\Camera.py" />
     <Compile Include="src\Filters\filter.py" />
     <Compile Include="src\Filters\opencv_viewer.py" />

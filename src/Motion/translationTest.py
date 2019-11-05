@@ -14,7 +14,7 @@ cfg = rs.config()
 #cfg.enable_stream(rs.stream.gyro)
 #cfg.enable_stream(rs.stream.color, 640,480, rs.format.bgr8, 60)
 #cfg.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 60) #reads form sensor
-cfg.enable_device_from_file("sample.bag", False)
+cfg.enable_device_from_file("sample2.bag", False)
 
 profile = pipeline.start(cfg)
 
@@ -31,13 +31,16 @@ align = rs.align(align_to)
 spatialFilter= rs.spatial_filter(.25, 50, 5, 1)
 disparity = rs.disparity_transform(True)
 kernel = np.ones((3,3),np.uint8)
-thresholdFilter = rs.threshold_filter(2.5, 5)
+
 
 try:
-    while 1:
+    x = 0
+    while x < 10:
 
         start = timer()
-        #x = 3 * np.sin(2*start) + 3
+        x = (.5 * start) - .49
+        #print(x)
+        thresholdFilter = rs.threshold_filter(2 + x, 5 + x)
 
         try:
             frames = pipeline.wait_for_frames()
@@ -69,7 +72,6 @@ try:
         cnts,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cv2.drawContours(colorImg, cnts,-1, [0,255,0], 2, cv2.LINE_8)
 
-
         mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
         colorImg = cv2.cvtColor(colorImg, cv2.COLOR_RGB2BGR)
         
@@ -77,7 +79,7 @@ try:
         cv2.putText(colorImg, FPS, (10,15), cv2.FONT_HERSHEY_SIMPLEX, .3, (0,0,0), 1, cv2.LINE_AA)
 
         cv2.namedWindow('RealSenseSpatial', cv2.WINDOW_AUTOSIZE)
-        res = np.hstack((mask, colorImg))
+        res = np.hstack((tmp, colorImg))
         cv2.imshow('RealSenseSpatial', res)
         
         #plot.append(motion.linearAccel)
