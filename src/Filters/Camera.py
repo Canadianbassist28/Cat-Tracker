@@ -15,7 +15,7 @@ class realsenseBackbone():                                                      
     def __init__(self):
         #self.frames = rs.frames
         self.pipeline = rs.pipeline()
-        self.config = self.setConfig("sample.bag") #use
+        self.config = self.setConfig() #use
         self.profile = self.pipeline.start(self.config)
         self.threedpoint = []
       #  self.frames = self.getFrames()
@@ -125,14 +125,17 @@ class realsenseBackbone():                                                      
         @param depth_frame must be a depth frame form cam without any filters applied
         @retrun returns a list of 3Dpoint in the contours
         """
-        cout = 0;
+        count = 0;
         for j in cnts:
             k = 0
-            for k in j:
-                x = k[0]
-                y = k[1]
-                point = backbone.threePoint(depth_frame,x, y)
-                self.threedpoint.append(point)
+            if (count%10 == 0):
+                for k in j:
+                    x = k[0]
+                    y = k[1]
+                    point = backbone.threePoint(depth_frame,x, y)
+                    self.threedpoint.append(point)
+            count = count + 1
+
 
                                                                                                             #work on threading 
 
