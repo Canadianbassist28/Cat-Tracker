@@ -13,7 +13,7 @@ class realsenseBackbone():                                                      
     def __init__(self):
         #self.frames = rs.frames
         self.pipeline = rs.pipeline()
-        self.config = self.setConfig("sample.bag") #use
+        self.config = self.setConfig() #use
         self.profile = self.pipeline.start(self.config)
       #  self.frames = self.getFrames()
         
@@ -108,21 +108,21 @@ class realsenseBackbone():                                                      
         #i = 0
         #count1 = 0
         for i in cnts:
-            #count2 = 0
+            count2 = 0
             #if (count1 % 800000 == 0):
             #j = 0
             for j in i:
                 #count3 = 0
-                    #if (count2% 8000000 == 0):
+                if (count2% 10 == 0):
                 #k = 0
-                for k in j:
-                            #if(count3 % 800000 == 0):
-                    x = k[0]
-                    y = k[1]
-                    point = backbone.threePoint(depth_frame,x, y)
-                    threedpoint.append(point)
+                    for k in j:
+                                    #if(count3 % 800000 == 0):
+                        x = k[0]
+                        y = k[1]
+                        point = backbone.threePoint(depth_frame,x, y)
+                        threedpoint.append(point)
                     #count3 = count3+1
-                    #count2 = count2+1
+                count2 = count2+1
                 #cont1 = count1 + 1
         #print (len(threedpoint))
         return threedpoint
@@ -240,7 +240,7 @@ if __name__ == "__main__":
         frames = backbone.getFrames() #get the frame from the camera
         timeStamp = frames.get_timestamp() / 1000
         motion.get_data(frames, timeStamp) 
-        print(motion.velocity)
+        #print(motion.velocity)
         #retrives the depth image from camera
         depth_frame = backbone.getDepthFrame(frames)
         # retrives color image as a np array
