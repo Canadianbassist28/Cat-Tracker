@@ -5,6 +5,7 @@ import cv2
 import threading
 import concurrent.futures
 from src.Motion.realsenseMotion import realsenseMotion
+from src.mapping.mapping.py import realsenseMapping
 import turtle
 
 
@@ -244,7 +245,8 @@ motion = realsenseMotion()
 pipeline = backbone.getpipeline()
 #turtle.screensize(11800, 99010)
 #dist = turtle.Turtle()
-outf = backbone.openfile("output.txt",)
+outf = backbone.openfile("output.txt")
+map = realsenseMaping()
 
 if __name__ == "__main__":
     while True: #keeps going while it is reciving data
@@ -253,7 +255,9 @@ if __name__ == "__main__":
         start = timer()
         frames = backbone.getFrames() #get the frame from the camera
         timeStamp = frames.get_timestamp() / 1000
-        motion.get_data(frames, timeStamp) 
+        motion.get_data(frames, timeStamp)
+        point = backone.position
+        map.print()
        # print(motion.velocity)
         #retrives the depth image from camera
         depth_frame = backbone.getDepthFrame(frames)
