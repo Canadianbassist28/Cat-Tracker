@@ -257,8 +257,9 @@ if __name__ == "__main__":
         frames = backbone.getFrames() #get the frame from the camera
         timeStamp = frames.get_timestamp() / 1000
         motion.get_data(frames, timeStamp)
-        point = motion.position
-        map.load()
+        position = motion.position
+        angle = motion.angle
+        map.load(position, angle)
        # print(motion.velocity)
         #retrives the depth image from camera
         depth_frame = backbone.getDepthFrame(frames)

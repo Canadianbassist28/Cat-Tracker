@@ -33,12 +33,17 @@ class realsenseMap(object):
         """
     """-----this function will print the data type thats associated  """
 
-    def load (self):
+    def load (self, position, angle):
         #this function will take information from dylan's piece of the project and load it into a tuple to gain real time information.
         #this will be useful for mapping because the we can use it to map using this tuple
-        while(rs.playback_status.playing):
-            Motion.self.position=(self.xaxis, self.yaxis, self.zaxis)
-            self.data[position, angle]
+        #while(rs.playback_status.playing):
+        #    Motion.self.position=(self.xaxis, self.yaxis, self.zaxis) 
+        self.xaxis = position[0]
+        self.yaxis = position[1]
+        self.zaxis = position[2]
+        self.data.append[(position[0], position[1], position[2], angle)]
+
+
 
 
     def print(self):
