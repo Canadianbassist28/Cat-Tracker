@@ -35,22 +35,20 @@ class realsenseMap(object):
     def load (self):
         #this function will take information from dylan's piece of the project and load it into a tuple to gain real time information.
         #this will be useful for mapping because the we can use it to map using this tuple
-        while(is rs.playing)
+        while(rs.playback_status.playing):
             Motion.self.position=(self.xaxis, self.yaxis, self.zaxis)
             self.data[position, angle]
 
-   def print(self.data)
-   #this function will be able to print the map to a file
-    print self.xaxis
-    print self.yaxis
-    print self.zaxis
-    print self.axis
 
-   def distance(self.data)
+    def print(self):
+   #this function will be able to print the map to a file
+        print(self.data)
+
+    def distance(self.data):
    #this function will be able to calculate the distance from the initial point and create a tuple of distance from any point while the program is running 
-    distance= (math.sqrt((self.xaxis-init.self.xaxis)^2), math.sqrt((self.yaxis-init.self.yaxis)^2), math.sqrt((self.zaxis-init.self.zaxis)^2))
+    double distance= (math.sqrt((self.xaxis-init.self.xaxis)^2), math.sqrt((self.yaxis-init.self.yaxis)^2), math.sqrt((self.zaxis-init.self.zaxis)^2))
     
-   def isTurn(self.data)
+   def isTurn(self.data):
     #this function will be able to decide if the camera has turned using the gyroscope
     
    def turnLeft(self.data)
@@ -58,4 +56,48 @@ class realsenseMap(object):
 
    def turnRight(self.data)
     #this function will display a right turn
+
+import plotly.plotly as py
+import plotly.graph_objs as go
+import numpy as np
+
+# Creating the data
+x = np.linspace(-5, 5, 50)
+y = np.linspace(-5, 5, 50)
+xGrid, yGrid = np.meshgrid(y, x)
+R = np.sqrt(xGrid ** 2 + yGrid ** 2)
+z = np.sin(R)
+
+# Creating the plot
+lines = []
+line_marker = dict(color='#0066FF', width=2)
+for i, j, k in zip(xGrid, yGrid, z):
+    lines.append(go.Scatter3d(x=i, y=j, z=k, mode='lines', line=line_marker))
+
+layout = go.Layout(
+    title='Wireframe Plot',
+    scene=dict(
+        xaxis=dict(
+            gridcolor='rgb(255, 255, 255)',
+            zerolinecolor='rgb(255, 255, 255)',
+            showbackground=True,
+            backgroundcolor='rgb(230, 230,230)'
+        ),
+        yaxis=dict(
+            gridcolor='rgb(255, 255, 255)',
+            zerolinecolor='rgb(255, 255, 255)',
+            showbackground=True,
+            backgroundcolor='rgb(230, 230,230)'
+        ),
+        zaxis=dict(
+            gridcolor='rgb(255, 255, 255)',
+            zerolinecolor='rgb(255, 255, 255)',
+            showbackground=True,
+            backgroundcolor='rgb(230, 230,230)'
+        )
+    ),
+    showlegend=False,
+)
+fig = go.Figure(data=lines, layout=layout)
+py.iplot(fig, filename='wireframe_plot')
         
