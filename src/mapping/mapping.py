@@ -48,6 +48,7 @@ class realsenseMap(object):
     def distance(self):
    #this function will be able to calculate the distance from the initial point and create a tuple of distance from any point while the program is running 
         tot_distance= (math.sqrt((self.xaxis-init.self.xaxis)^2), math.sqrt((self.yaxis-init.self.yaxis)^2), math.sqrt((self.zaxis-init.self.zaxis)^2))
+        return tot_distance
 
     def isTurn(self):
     #this function will be able to decide if the camera has turned using the gyroscope
