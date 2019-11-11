@@ -4,9 +4,7 @@ import numpy as np
 from timeit import default_timer as timer
 import plotly.plotly as py
 import plotly.graph_objs as go
-import numpy as np
-
-from src.motion.realsenseMotion import realsenseMotion as Motion
+from src.Motion.realsenseMotion import realsenseMotion as Motion
 
 
 class realsenseMap(object):
@@ -54,55 +52,58 @@ class realsenseMap(object):
     def isTurn(self):
     #this function will be able to decide if the camera has turned using the gyroscope
         if turnLeft(self) == true or turnRight(self) == true:  
-             return true
+             return True
         else: 
-             return false
+             return False
     
     def turnLeft(self):
     #this function will identify a left turn
-        left== true
+         if self.xaxis > self.data.xaxis and self.angle > 270 and self.angle < 360:
+            return True
+         else: 
+            return False
     def turnRight(self):
     #this function will display a right turn
-        right==true 
+        if self.xaxis < self.data.xaxis and self.angle > 45 and self.angle < 90:
+            return True
+        else: 
+            return False
 # Creating the data
-x = self.xaxis
-y = self.yaxis
-xGrid, yGrid = np.meshgrid(y, x)
-
-
-R = np.sqrt(xGrid ** 2 + yGrid ** 2)
-z = np.sin(R)
-
-# Creating the plot
-lines = []
-line_marker = dict(color='#0066FF', width=2)
-for i, j, k in zip(xGrid, yGrid, z):
-    lines.append(go.Scatter3d(x=i, y=j, z=k, mode='lines', line=line_marker))
-
-layout = go.Layout(
-    title='Wireframe Plot',
-    scene=dict(
-        xaxis=dict(
-            gridcolor='rgb(255, 255, 255)',
-            zerolinecolor='rgb(255, 255, 255)',
-            showbackground=True,
-            backgroundcolor='rgb(230, 230,230)'
+def wireframe(self):
+    x = self.xaxis
+    y = self.yaxis
+    xGrid, yGrid = np.meshgrid(y, x)
+    R = np.sqrt(xGrid ** 2 + yGrid ** 2)
+    z = np.sin(R)
+    # Creating the plot
+    lines = []
+    line_marker = dict(color='#0066FF', width=2)
+    for i, j, k in zip(xGrid, yGrid, z):
+        lines.append(go.Scatter3d(x=i, y=j, z=k, mode='lines', line=line_marker))
+    layout = go.Layout(
+        title='Wireframe Plot',
+        scene=dict(
+            xaxis=dict(
+                gridcolor='rgb(255, 255, 255)',
+                zerolinecolor='rgb(255, 255, 255)',
+                showbackground=True,
+                backgroundcolor='rgb(230, 230,230)'
+            ),
+            yaxis=dict(
+                gridcolor='rgb(255, 255, 255)',
+                zerolinecolor='rgb(255, 255, 255)',
+                showbackground=True,
+                backgroundcolor='rgb(230, 230,230)'
+            ),
+            zaxis=dict(
+                gridcolor='rgb(255, 255, 255)',
+                zerolinecolor='rgb(255, 255, 255)',
+                showbackground=True,
+                backgroundcolor='rgb(230, 230,230)'
+            )
         ),
-        yaxis=dict(
-            gridcolor='rgb(255, 255, 255)',
-            zerolinecolor='rgb(255, 255, 255)',
-            showbackground=True,
-            backgroundcolor='rgb(230, 230,230)'
-        ),
-        zaxis=dict(
-            gridcolor='rgb(255, 255, 255)',
-            zerolinecolor='rgb(255, 255, 255)',
-            showbackground=True,
-            backgroundcolor='rgb(230, 230,230)'
-        )
-    ),
-    showlegend=False,
-)
-fig = go.Figure(data=lines, layout=layout)
-py.iplot(fig, filename='wireframe_plot')
+        showlegend=False,
+    )
+    fig = go.Figure(data=lines, layout=layout)
+    py.iplot(fig, filename='wireframe_plot')
         
