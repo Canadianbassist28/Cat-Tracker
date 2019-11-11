@@ -2,7 +2,7 @@ import pyrealsense2 as rs
 import math as math
 import numpy as np
 from timeit import default_timer as timer
-import plotly.plotly as py
+import chart_studio.plotly as py
 import plotly.graph_objs as go
 from src.Motion.realsenseMotion import realsenseMotion as Motion
 
