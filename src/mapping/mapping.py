@@ -2,6 +2,9 @@ import pyrealsense2 as rs
 import math as math
 import numpy as np
 from timeit import default_timer as timer
+import plotly.plotly as py
+import plotly.graph_objs as go
+import numpy as np
 
 from src.motion.realsenseMotion import realsenseMotion as Motion
 
@@ -50,25 +53,23 @@ class realsenseMap(object):
 
     def isTurn(self):
     #this function will be able to decide if the camera has turned using the gyroscope
-        if self.turnLeft == true or self.turnRight == true:  
+        if turnLeft(self) == true or turnRight(self) == true:  
              return true
         else: 
              return false
     
     def turnLeft(self):
     #this function will identify a left turn
-
-   def turnRight(self.data)
+        left== true
+    def turnRight(self):
     #this function will display a right turn
-
-import plotly.plotly as py
-import plotly.graph_objs as go
-import numpy as np
-
+        right==true 
 # Creating the data
-x = np.linspace(-5, 5, 50)
-y = np.linspace(-5, 5, 50)
+x = self.xaxis
+y = self.yaxis
 xGrid, yGrid = np.meshgrid(y, x)
+
+
 R = np.sqrt(xGrid ** 2 + yGrid ** 2)
 z = np.sin(R)
 
