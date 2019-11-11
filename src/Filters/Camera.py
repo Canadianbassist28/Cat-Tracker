@@ -80,6 +80,7 @@ class realsenseBackbone():                                                      
         @param x is the x coridinate of the pixel
         @param y is the y cordinate of the pixel
         @param deproject retrun the depth in meters
+        @retrun returns distance in meters
         """
         distance = depthFrame.get_distance(x, y)
         return distance
@@ -102,6 +103,7 @@ class realsenseBackbone():                                                      
     def point3DContour(self,cnts,depth_frame):
         """
         apply threading to processs the lsit of points
+        returns a list of points
         may need to do a lock
         send in a quue that can be addde on to or a list
 
