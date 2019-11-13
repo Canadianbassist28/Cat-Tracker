@@ -23,6 +23,9 @@ class realsenseMap(object):
         self.yaxis=0
         self.zaxis=0
         self.angle=0 
+        self.xcontour=0
+        self.ycontour=0
+        self.zcontour=0
 
         
         self.data = []
@@ -33,11 +36,15 @@ class realsenseMap(object):
         """
     """-----this function will print the data type thats associated  """
 
-    def load (self, position, angle):
+    def load (self, position, angle, threeDpoints):
         #this function will take information from dylan's piece of the project and load it into a tuple to gain real time information.
         #this will be useful for mapping because the we can use it to map using this tuple
-        #while(rs.playback_status.playing):
-        #    Motion.self.position=(self.xaxis, self.yaxis, self.zaxis) 
+      
+        for i in threeDpoints:
+            self.xcontour = threeDpoints(i[0])
+            self.ycontour = threeDpoints(i[1])
+            self.zcontour = threeDpoints(i[2])
+
         self.xaxis = position[0]
         self.yaxis = position[1]
         self.zaxis = position[2]
@@ -92,7 +99,7 @@ class realsenseMap(object):
         for i, j, k in zip(xGrid, yGrid, z):
             lines.append(go.Scatter3d(x=i, y=j, z=k, mode='lines', line=line_marker))
         layout = go.Layout(
-            title='Wireframe Plot',
+            title='Cat-Tracker Map',
             scene=dict(
                 xaxis=dict(
                     gridcolor='rgb(255, 255, 255)',
