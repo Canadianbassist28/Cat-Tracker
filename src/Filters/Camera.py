@@ -17,7 +17,7 @@ class realsenseBackbone():                                                      
     def __init__(self):
         #self.frames = rs.frames
         self.pipeline = rs.pipeline()
-        self.config = self.setConfig("sample.bag") #use
+        self.config = self.setConfig() #use
         self.profile = self.pipeline.start(self.config)
         self.threedpoint = []
       #  self.frames = self.getFrames()
@@ -257,7 +257,6 @@ if __name__ == "__main__":
         motion.get_data(frames, timeStamp)
         position = motion.position
         angle = motion.angle
-        map.load(position, angle)
        # print(motion.velocity)
         #retrives the depth image from camera
         depth_frame = backbone.getDepthFrame(frames)
@@ -272,6 +271,7 @@ if __name__ == "__main__":
         #apply the contour to the color image
         cnts = backbone.contour(depthFrame, color_image)
         threeDpoints = backbone.point3DContour(cnts, depth_frame)
+        map.load(position, angle, threeDpoints)
         outf = backbone.fileOutput(threeDpoints, outf)
         #for i in threeDpoints:
         #    if(i[0] <= -.1):
