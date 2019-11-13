@@ -19,25 +19,27 @@ class realsenseMap(object):
    and rotation 
     """
     def init (self):
-        self.xaxis=0
-        self.yaxis=0
-        self.zaxis=0
-        self.angle=0 
+        self.xaxis= Motion.position[0]
+        self.yaxis= Motion.position[1] 
+        self.zaxis= Motion.position[2]
+        self.xangle= Motion.angle[0]
+        self.yangle= Motion.angle[1]
+        self.zangle= Motion.angle[2]
 
         
         self.data=[()]
 
-        """ 
-        I will need a group of functions called Turn 
-        which is a boolean that return true if we turn left, right, up and down
-        """
-    """-----this function will print the data type thats associated  """
+        
+        #I will need a group of functions called Turn 
+        #which is a boolean that return true if we turn left, right, up and down
+        
+    #-----this function will print the data type thats associated
 
     def load (self):
         #this function will take information from dylan's piece of the project and load it into a tuple to gain real time information.
         #this will be useful for mapping because the we can use it to map using this tuple
         while(rs.playback_status.playing):
-            Motion.self.position=(self.xaxis, self.yaxis, self.zaxis)
+            Motion.position=[(self.xaxis, self.yaxis, self.zaxis)]
             self.data[position, angle]
 
 
@@ -71,8 +73,8 @@ class realsenseMap(object):
             return False
 # Creating the data
 def wireframe(self):
-    x = self.xaxis
-    y = self.yaxis
+    x= Motion.xaxis
+    y=Motion.yaxis
     xGrid, yGrid = np.meshgrid(y, x)
     R = np.sqrt(xGrid ** 2 + yGrid ** 2)
     z = np.sin(R)
