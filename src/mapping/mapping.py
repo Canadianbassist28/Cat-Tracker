@@ -51,7 +51,10 @@ class realsenseMap(object):
         tup = (position[0], position[1], position[2])
         self.data.append(tup)
 
-
+    def pt_distance(self, xcontour, ycontour, zcontour):
+        xinit = xcontour[0]
+        yinit = ycontour[0]
+        zinit = zcontour[0]
 
 
     def print(self):
