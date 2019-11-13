@@ -18,14 +18,14 @@ class realsenseMap(object):
     It will also be able to read a specific point and calculate distance
    and rotation 
     """
-    def init (self):
+    def __init__ (self):
         self.xaxis=0
         self.yaxis=0
         self.zaxis=0
         self.angle=0 
 
         
-        self.data=[()]
+        self.data = []
 
         """ 
         I will need a group of functions called Turn 
@@ -41,7 +41,8 @@ class realsenseMap(object):
         self.xaxis = position[0]
         self.yaxis = position[1]
         self.zaxis = position[2]
-        self.data.append[(position[0], position[1], position[2], angle)]
+        tup = (position[0], position[1], position[2])
+        self.data.append(tup)
 
 
 
@@ -75,41 +76,43 @@ class realsenseMap(object):
         else: 
             return False
 # Creating the data
-def wireframe(self):
-    x = self.xaxis
-    y = self.yaxis
-    xGrid, yGrid = np.meshgrid(y, x)
-    R = np.sqrt(xGrid ** 2 + yGrid ** 2)
-    z = np.sin(R)
-    # Creating the plot
-    lines = []
-    line_marker = dict(color='#0066FF', width=2)
-    for i, j, k in zip(xGrid, yGrid, z):
-        lines.append(go.Scatter3d(x=i, y=j, z=k, mode='lines', line=line_marker))
-    layout = go.Layout(
-        title='Wireframe Plot',
-        scene=dict(
-            xaxis=dict(
-                gridcolor='rgb(255, 255, 255)',
-                zerolinecolor='rgb(255, 255, 255)',
-                showbackground=True,
-                backgroundcolor='rgb(230, 230,230)'
+    def wireframe(self):
+        x = self.xaxis
+        y = self.yaxis
+        xGrid, yGrid = np.meshgrid(y, x)
+        R = np.sqrt(xGrid ** 2 + yGrid ** 2)
+        z = np.sin(R)
+        # Creating the plot
+        lines = []
+        line_marker = dict(color='#0066FF', width=2)
+        for i, j, k in zip(xGrid, yGrid, z):
+            lines.append(go.Scatter3d(x=i, y=j, z=k, mode='lines', line=line_marker))
+        layout = go.Layout(
+            title='Wireframe Plot',
+            scene=dict(
+                xaxis=dict(
+                    gridcolor='rgb(255, 255, 255)',
+                    zerolinecolor='rgb(255, 255, 255)',
+                    showbackground=True,
+                    backgroundcolor='rgb(230, 230,230)'
+                ),
+                yaxis=dict(
+                    gridcolor='rgb(255, 255, 255)',
+                    zerolinecolor='rgb(255, 255, 255)',
+                    showbackground=True,
+                    backgroundcolor='rgb(230, 230,230)'
+                ),
+                zaxis=dict(
+                    gridcolor='rgb(255, 255, 255)',
+                    zerolinecolor='rgb(255, 255, 255)',
+                    showbackground=True,
+                    backgroundcolor='rgb(230, 230,230)'
+                )
             ),
-            yaxis=dict(
-                gridcolor='rgb(255, 255, 255)',
-                zerolinecolor='rgb(255, 255, 255)',
-                showbackground=True,
-                backgroundcolor='rgb(230, 230,230)'
-            ),
-            zaxis=dict(
-                gridcolor='rgb(255, 255, 255)',
-                zerolinecolor='rgb(255, 255, 255)',
-                showbackground=True,
-                backgroundcolor='rgb(230, 230,230)'
-            )
-        ),
-        showlegend=False,
-    )
-    fig = go.Figure(data=lines, layout=layout)
-    py.iplot(fig, filename='wireframe_plot')
+            showlegend=False,
+        )
+        fig = go.Figure(data=lines, layout=layout)
+        fig.show()
+        py.iplot(fig, filename='wireframe_plot')
+
         

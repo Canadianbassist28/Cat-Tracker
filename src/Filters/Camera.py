@@ -244,8 +244,6 @@ class realsenseBackbone():                                                      
 backbone = realsenseBackbone()
 motion = realsenseMotion()
 pipeline = backbone.getpipeline()
-#turtle.screensize(11800, 99010)
-#dist = turtle.Turtle()
 outf = backbone.openfile("output.txt")
 map = realsenseMap()
 
@@ -297,7 +295,7 @@ if __name__ == "__main__":
 
 outf.close()
 pipeline.stop()
-turtle.done
+map.wireframe()
 
 
 #work on countor going through the list thats made and processing increments of the pixels and return a 3d point look at getting th contour smother 
