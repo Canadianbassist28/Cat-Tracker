@@ -77,11 +77,15 @@ class realsenseMap(object):
             return False
 # Creating the data
     def wireframe(self):
-        x = self.xaxis
-        y = self.yaxis
+        x = []
+        y = []
+        for i in self.data:
+            x.append(i[0])
+            y.append(i[1])
         xGrid, yGrid = np.meshgrid(y, x)
         R = np.sqrt(xGrid ** 2 + yGrid ** 2)
         z = np.sin(R)
+
         # Creating the plot
         lines = []
         line_marker = dict(color='#0066FF', width=2)
