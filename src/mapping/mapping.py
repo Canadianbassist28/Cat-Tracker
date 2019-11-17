@@ -41,9 +41,9 @@ class realsenseMap(object):
         #this will be useful for mapping because the we can use it to map using this tuple
       
         for i in threeDpoints:
-            self.xcontour = threeDpoints(i[0])
-            self.ycontour = threeDpoints(i[1])
-            self.zcontour = threeDpoints(i[2])
+            self.xcontour = i[0]
+            self.ycontour = i[1]
+            self.zcontour = i[2]
 
         self.xaxis = position[0]
         self.yaxis = position[1]
@@ -51,7 +51,10 @@ class realsenseMap(object):
         tup = (position[0], position[1], position[2])
         self.data.append(tup)
 
-
+    def pt_distance(self, xcontour, ycontour, zcontour):
+        xinit = xcontour[0]
+        yinit = ycontour[0]
+        zinit = zcontour[0]
 
 
     def print(self):
