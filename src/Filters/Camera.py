@@ -132,7 +132,7 @@ class realsenseBackbone():                                                      
         count = 0;
         for j in cnts:
             k = 0
-            if (count%10 == 0):
+            if (count%30 == 0):     #possibly bavk 10
                 for k in j:
                     x = k[0]
                     y = k[1]
@@ -254,7 +254,7 @@ maxDistance = 1
 range = 14 # max distance cammera can see
 
 if __name__ == "__main__":
-    while (minDistance <= range): #keeps going while it is reciving data
+    while (minDistance <= range and maxDistance <= 8): #keeps going while it is reciving data
         
         #retrives the respective frames required and sends them where needed.
         start = timer()
@@ -296,8 +296,8 @@ if __name__ == "__main__":
             break
         
         #increment the threshold 
-        minDistance = minDistance + .1
-        maxDistance = maxDistance + .1
+        minDistance = minDistance + .05
+        maxDistance = maxDistance + .05
 
 outf.close()
 pipeline.stop()
