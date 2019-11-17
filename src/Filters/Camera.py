@@ -17,7 +17,7 @@ class realsenseBackbone():                                                      
     def __init__(self):
         #self.frames = rs.frames
         self.pipeline = rs.pipeline()
-        self.config = self.setConfig("sample.bag") #use
+        self.config = self.setConfig() #use
         self.profile = self.pipeline.start(self.config)
         self.threedpoint = []
       #  self.frames = self.getFrames()
@@ -251,9 +251,10 @@ outf = backbone.openfile("output.txt")
 #paramters that specifies the distance teh threshold is applied to 
 minDistance = 0
 maxDistance = 1
+range = 14 # max distance cammera can see
 
 if __name__ == "__main__":
-    while (minDistance <= 14): #keeps going while it is reciving data
+    while (minDistance <= range): #keeps going while it is reciving data
         
         #retrives the respective frames required and sends them where needed.
         start = timer()
@@ -267,6 +268,7 @@ if __name__ == "__main__":
         depth_frame = backbone.getDepthFrame(frames)
         # retrives color image as a np array
         color_image = backbone.colorImageCV2(frames)
+        range = backbone.distancePixel(depth_frame, 320, 220)
 
         #apply all the filters to the depth and converts it to np.array
         depthFrame = backbone.allFilters(depth_frame, minDistance, maxDistance)
@@ -294,8 +296,8 @@ if __name__ == "__main__":
             break
         
         #increment the threshold 
-        minDistance = minDistance + .005
-        maxDistance = maxDistance + .005
+        minDistance = minDistance + .1
+        maxDistance = maxDistance + .1
 
 outf.close()
 pipeline.stop()
