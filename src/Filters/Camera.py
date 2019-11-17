@@ -31,7 +31,7 @@ class realsenseBackbone():                                                      
             config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 250)
             config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
         else:
-            config.enable_device_from_file("sample.bag")    #can do ,false to not repeat
+            config.enable_device_from_file(bagfile)    #can do ,false to not repeat
         return config
 
     def getpipeline(self):
@@ -201,13 +201,14 @@ class realsenseBackbone():                                                      
         return depthFrame
 
 
-    def allFilters(self, depthFrame):
+    def allFilters(self, depthFrame, minDist, maxDist):
         """
         Takes in a deoth fraam and applys all the filters to excludes decimation for perfromance but can be uncommented
         Depeneding on when you apply disparity it willl cause the threshold to not work apply after doing threshold
+        @param minDist maxDist the distance the threshold filter is applied to.
         """
         #depthFrame = self.hole(depthFrame)
-        depthFrame = self.threshold(depthFrame, 2.5, 5)
+        depthFrame = self.threshold(depthFrame, minDist, maxDist)
         depthFrame = self.disparity(depthFrame)
         depthFrame = self.spatial(depthFrame)
         #depthFrame = self.decimation(depthFrame)
@@ -245,12 +246,16 @@ backbone = realsenseBackbone()
 motion = realsenseMotion()
 pipeline = backbone.getpipeline()
 outf = backbone.openfile("output.txt")
-map = realsenseMap()
+#map = realsenseMap()
+
+#paramters that specifies the distance teh threshold is applied to 
+minDistance = 0
+maxDistance = 1
 
 if __name__ == "__main__":
-    while True: #keeps going while it is reciving data
+    while (minDistance <= 14): #keeps going while it is reciving data
         
-        #retrives the respactive frames required and sends them where needed.
+        #retrives the respective frames required and sends them where needed.
         start = timer()
         frames = backbone.getFrames() #get the frame from the camera
         timeStamp = frames.get_timestamp() / 1000
@@ -263,23 +268,18 @@ if __name__ == "__main__":
         # retrives color image as a np array
         color_image = backbone.colorImageCV2(frames)
 
-
-        #apply all the filters and to the depth and converts it to np.array
-        depthFrame = backbone.allFilters(depth_frame)
+        #apply all the filters to the depth and converts it to np.array
+        depthFrame = backbone.allFilters(depth_frame, minDistance, maxDistance)
         depthFrame = backbone.depthImageCV2(depthFrame)
 
-        #apply the contour to the color image
+        #apply the contour to the color image and retrives the position of parst of the contour and output to file
         cnts = backbone.contour(depthFrame, color_image)
         threeDpoints = backbone.point3DContour(cnts, depth_frame)
-        map.load(position, angle, threeDpoints)
-        outf = backbone.fileOutput(threeDpoints, outf)
-        #for i in threeDpoints:
-        #    if(i[0] <= -.1):
-        #        dist.left(90)
-        #    elif(i[0]>= .1):
-        #        dist.right(90)
-        #    dist.forward(i[2])
 
+        #map.load(position, angle, threeDpoints)
+        outf = backbone.fileOutput(threeDpoints, outf)
+
+        #frame display
         FPS = "{:.2f} ({:.2f},{:.2f},{:.2f})".format(1 / (timer() - start), motion.position[0], motion.position[1], motion.position[2])
         cv2.putText(color_image, FPS, (10,15), cv2.FONT_HERSHEY_SIMPLEX, .3, (0,0,0), 1, cv2.LINE_AA)
 
@@ -292,10 +292,14 @@ if __name__ == "__main__":
         if (cv2.waitKey(1) & 0xFF == ord('q')):
             cv2.destroyAllWindows()
             break
+        
+        #increment the threshold 
+        minDistance = minDistance + .005
+        maxDistance = maxDistance + .005
 
 outf.close()
 pipeline.stop()
-map.wireframe()
+#map.wireframe()
 
 
 #work on countor going through the list thats made and processing increments of the pixels and return a 3d point look at getting th contour smother 
