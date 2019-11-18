@@ -14,3 +14,31 @@ scrum 3 (10/16/2019):
 	- Dylan applied classes for motion data
 	- Kevin working on classes in python for mapping	
 	- Erika continuing threshold filter
+
+scrum 4 (10/21/2019):
+	- Evan Added spaghetti code for mapping algorithm
+	- Dylan applied more data into the motion class to support mapping
+	- Kevin finsihed working on contouring the data points
+	- Erika worked on comments and distance precision to reduce data intake
+
+scrum 5 (10/28/2019):
+	- Evan researched most effecting way to map with time constraints looked into plotly scatterplot
+	- Dylan worked on data processing to support mapping class
+	- Kevin started to assist Evan with the mapping algorithm
+	- Erika worked on commenting the code she worked on 
+
+Scrum 6(11/4/2019):
+	- Evan Started implementing code in mapping algorithm 
+	- Dylan researched mapping display
+	- Kevin Worked with Evan on Mapping section
+	- Erika Helping formulate the scatter plot for data
+
+scrum 7 (11/11/2019):
+	-Evan Starting using plotly for a 3d wire fram mapping scatter plot
+	- Dylan instructed team on how to download plotly on visual studios
+	- Kevin Helping evan format data for plotly
+	- Erika help on mapping class 
+
+scrum 8(11/18/2019):
+	-Group is helping get the scatter plot working for live action demo next week
+
