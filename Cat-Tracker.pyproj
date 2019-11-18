@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <InterpreterId>Global|PythonCore|3.7</InterpreterId>
+    <InterpreterId>CondaEnv|CondaEnv|tf-gpu</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
@@ -22,7 +22,7 @@
     <Compile Include="help.py" />
     <Compile Include="pointCloud.py" />
     <Compile Include="RealSense.py" />
-    <Compile Include="demo3.py">
+    <Compile Include="src\Filters\demo3.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\Filters\Camera.py" />
@@ -53,7 +53,7 @@
     <Content Include="src\mapping\EVANPARTION.md" />
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="Global|PythonCore|3.7" />
+    <InterpreterReference Include="CondaEnv|CondaEnv|tf-gpu" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

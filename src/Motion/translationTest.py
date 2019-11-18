@@ -38,7 +38,7 @@ try:
     while x < 10:
 
         start = timer()
-        x = (.5 * start) - .49
+        #x = (.5 * start) - .49
         #print(x)
         thresholdFilter = rs.threshold_filter(2 + x, 5 + x)
 
@@ -82,7 +82,7 @@ try:
         res = np.hstack((tmp, colorImg))
         cv2.imshow('RealSenseSpatial', res)
         
-        #plot.append(motion.linearAccel)
+        plot.append(motion.position)
         #plot.append(x)
         #if motion.isCalibrated:
         #    YplotData.append(motion.position[0])

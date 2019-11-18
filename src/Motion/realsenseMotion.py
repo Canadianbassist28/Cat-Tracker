@@ -99,13 +99,13 @@ class realsenseMotion(object):
         #-------integrate linearAccel(m/s^2) to get velocity(m/s)
 
         tmp = self.__integrate(self.linearAccel, self.lastLinearAccel, timeNow)
-        tmp = np.matmul(np.array(tmp), R_BI)
+        #tmp = np.matmul(np.array(tmp), R_BI)
         self.velocity = tuple(map(sum, zip(self.velocity, tmp)))
 
         #-------integrate velocity(m/s) to get position(m)
         
         tmp = self.__integrate(self.velocity, self.lastVelocity, timeNow)
-        #tmp = np.matmul(np.array(tmp), R)
+        tmp = np.matmul(np.array(tmp), R_BI)
         self.position = tuple(map(sum, zip(self.position, tmp)))
 
         #set last time and increment tick !!!(must be done at end of this function)!!!
