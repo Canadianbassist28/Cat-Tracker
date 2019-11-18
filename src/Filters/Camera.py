@@ -13,7 +13,7 @@ class realsenseBackbone():                                                      
     def __init__(self):
         #self.frames = rs.frames
         self.pipeline = rs.pipeline()
-        self.config = self.setConfig("sample.bag") #use
+        self.config = self.setConfig() #use
         self.profile = self.pipeline.start(self.config)
       #  self.frames = self.getFrames()
         
@@ -105,25 +105,25 @@ class realsenseBackbone():                                                      
         @retrun returns a list of 3Dpoint in the contours
         """
         threedpoint = [] #empty list to contain the 3dpoint of the contour
-        i = 0
-        count1 = 0
+        #i = 0
+        #count1 = 0
         for i in cnts:
             count2 = 0
-            if (count1 % 800000 == 0):
-                j = 0
-                for j in i:
-                    count3 = 0
-                    if (count2% 8000000 == 0):
-                        k = 0
-                        for k in j:
-                            if(count3 % 800000 == 0):
-                                x = k[0]
-                                y = k[1]
-                            point = backbone.threePoint(depth_frame,x, y)
-                            threedpoint.append(point)
-                        count3 = count3+1
-                    count2 = count2+1
-                cont1 = count1 + 1
+            #if (count1 % 800000 == 0):
+            #j = 0
+            for j in i:
+                #count3 = 0
+                if (count2% 10 == 0):
+                #k = 0
+                    for k in j:
+                                    #if(count3 % 800000 == 0):
+                        x = k[0]
+                        y = k[1]
+                        point = backbone.threePoint(depth_frame,x, y)
+                        threedpoint.append(point)
+                    #count3 = count3+1
+                count2 = count2+1
+                #cont1 = count1 + 1
         #print (len(threedpoint))
         return threedpoint
                                                                                                             #work on threading 
@@ -235,12 +235,12 @@ outf = backbone.openfile("output.txt",)
 
 if __name__ == "__main__":
     while True: #keeps going while it is reciving data
-        
+        start = timer()
         #retrives the respactive frames required and sends them where needed.
         frames = backbone.getFrames() #get the frame from the camera
         timeStamp = frames.get_timestamp() / 1000
         motion.get_data(frames, timeStamp) 
-        print(motion.velocity)
+        #print(motion.velocity)
         #retrives the depth image from camera
         depth_frame = backbone.getDepthFrame(frames)
         # retrives color image as a np array
@@ -263,6 +263,9 @@ if __name__ == "__main__":
         #    dist.forward(i[2])
 
         # Show images
+
+        FPS = "{:.2f} ({:.2f},{:.2f},{:.2f})".format(1 / (timer() - start), motion.position[0], motion.position[1], motion.position[2])
+        cv2.putText(color_image, FPS, (10,15), cv2.FONT_HERSHEY_SIMPLEX, .3, (0,0,0), 1, cv2.LINE_AA)
         cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
         res = np.hstack((depthFrame, color_image))
         cv2.imshow('RealSense', res)
