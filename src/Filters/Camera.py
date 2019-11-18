@@ -17,7 +17,7 @@ class realsenseBackbone():                                                      
     def __init__(self):
         #self.frames = rs.frames
         self.pipeline = rs.pipeline()
-        self.config = self.setConfig() #use
+        self.config = self.setConfig("sample2.bag") #use
         self.profile = self.pipeline.start(self.config)
         self.threedpoint = []
       #  self.frames = self.getFrames()
@@ -249,12 +249,12 @@ outf = backbone.openfile("output.txt")
 #map = realsenseMap()
 
 #paramters that specifies the distance teh threshold is applied to 
-minDistance = 0
-maxDistance = 1
+minDistance = 1
+maxDistance = 2.5
 range = 14 # max distance cammera can see
 
 if __name__ == "__main__":
-    while (minDistance <= range and maxDistance <= 8): #keeps going while it is reciving data
+    while (minDistance <= 8 and maxDistance <= 15): #keeps going while it is reciving data
         
         #retrives the respective frames required and sends them where needed.
         start = timer()

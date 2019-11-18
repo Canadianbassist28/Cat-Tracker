@@ -33,5 +33,5 @@ zasarray = np.asarray(listz)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection = '3d') #add 3rd axes
 #plt.scatter(xasarray,yasarray)
-ax.scatter(xasarray, yasarray, zasarray) #fix parameters sending.
+ax.scatter(xasarray, yasarray, zasarray, s = 1) #fix parameters sending.
 plt.show()
