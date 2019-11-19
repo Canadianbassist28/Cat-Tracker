@@ -7,23 +7,22 @@ import concurrent.futures
 import plotly
 from src.Motion.realsenseMotion import realsenseMotion
 from src.mapping.mapping import realsenseMap
-import turtle
 
 
-class realsenseBackbone():                                                                                                                            #use sefl to access member funciton and variables 
+class realsenseBackbone():                                                                                                                          
     """
     Handels the backbone of the camera setting the configs and 
     """
     def __init__(self):
         #self.frames = rs.frames
         self.pipeline = rs.pipeline()
-        self.config = self.setConfig("sample2.bag") #use
+        self.config = self.setConfig("sample2.bag")
         self.profile = self.pipeline.start(self.config)
         self.threedpoint = []
-      #  self.frames = self.getFrames()
         
     def setConfig(self, bagfile = ""):
         #sets the config setting for the cammera
+        #@param bagfile setsname of the file to read from send nothing to read form cammmera.
         config = rs.config()
         if len(bagfile) == 0:
             config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
@@ -65,7 +64,7 @@ class realsenseBackbone():                                                      
     def depthImageCV2(self, depthFrame):
         #inputs the depth frame
         #then apply color mappuing to the image into a numpyarray to be displayed in cv2
-        colorized = rs.colorizer(3)                                       #can change vaule for color map
+        colorized = rs.colorizer(3) #can change vaule for color map
         colorized_depth = np.asanyarray(colorized.colorize(depthFrame).get_data())
         return colorized_depth
 
@@ -139,9 +138,6 @@ class realsenseBackbone():                                                      
                     point = backbone.threePoint(depth_frame,x, y)
                     self.threedpoint.append(point)
             count = count + 1
-
-
-                                                                                                            #work on threading 
 
     """
     Writeing to a file
