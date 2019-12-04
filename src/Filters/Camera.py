@@ -5,6 +5,8 @@ import cv2
 import threading
 import concurrent.futures
 import plotly
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 from src.Motion.realsenseMotion import realsenseMotion
 from src.mapping.mapping import realsenseMap
 
@@ -292,15 +294,40 @@ if __name__ == "__main__":
             break
         
         #increment the threshold 
-        minDistance = minDistance + .05
-        maxDistance = maxDistance + .05
+        minDistance = minDistance + .02
+        maxDistance = maxDistance + .02
 
 outf.close()
 pipeline.stop()
 #map.wireframe()
+# plot the data
+listx = []
+listy = []
+listz = []
 
+#open the file and read in the data to a list
+file = open("output.txt", "r")
+list1 = []
+i = file.readline()
 
-#work on countor going through the list thats made and processing increments of the pixels and return a 3d point look at getting th contour smother 
-#list of pixel pointes indor atlas
+for i in file:
+#finds x, y,z points converts to float and puts it into coresponding list
+    index_x = i.find(',' , 0)
+    listx.append(float(i[1:index_x]))
+    index_y = i.find(',' , index_x +1, len(i))
+    listy.append(float(i[index_x + 1: index_y]))
+    listz.append(float(i[index_y+2 : len(i)-2]))
 
-#look to aligning depth and color
+xasarray = np.asarray(listx)
+yasarray = np.asarray(listy)
+zasarray = np.asarray(listz)
+
+#print (list1[0])
+
+#conver to an array
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection = '3d') #add 3rd axes
+#plt.scatter(xasarray,yasarray)
+ax.scatter(xasarray, yasarray, zasarray, s = 1) #fix parameters sending.
+plt.show()
