@@ -18,7 +18,7 @@ class realsenseBackbone():
     def __init__(self):
         #self.frames = rs.frames
         self.pipeline = rs.pipeline()
-        self.config = self.setConfig("sample2.bag")
+        self.config = self.setConfig()
         self.profile = self.pipeline.start(self.config)
         self.threedpoint = []
         
@@ -252,7 +252,7 @@ maxDistance = 2.5
 range = 14 # max distance cammera can see
 
 if __name__ == "__main__":
-    while (minDistance <= 8 and maxDistance <= 15): #keeps going while it is reciving data
+    while (minDistance <= 8 and maxDistance <= range): #keeps going while it is reciving data
         
         #retrives the respective frames required and sends them where needed.
         start = timer()
@@ -300,6 +300,7 @@ if __name__ == "__main__":
 outf.close()
 pipeline.stop()
 #map.wireframe()
+
 # plot the data
 listx = []
 listy = []
